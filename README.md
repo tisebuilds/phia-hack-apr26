@@ -23,6 +23,10 @@ App state is mirrored to `localStorage` under `phia-starter-state-v1` after the 
 
 Drop PNGs at `public/products/{id}.png` (`1`–`12`). When a file is missing, tiles fall back to the striped placeholder treatment.
 
+## Standalone HTML
+
+The exported judge bundle lives in `prototype-standalone/Phia Starter Prototype _standalone_.html` (open locally in a browser; not part of the Next build).
+
 ## Deploy
 
-Deploy the `phia-starter` directory to Vercel (project root = this folder). Set `metadataBase` in `app/layout.tsx` if the production hostname differs from `starter.phia-demo.vercel.app`.
+Connect this repository to Vercel with **project root = repository root** (default). Set `metadataBase` in `app/layout.tsx` if the production hostname differs from `starter.phia-demo.vercel.app`.
