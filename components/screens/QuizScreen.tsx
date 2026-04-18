@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProgressDots } from "@/components/primitives/ProgressDots";
+import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import { STARTER_DATA } from "@/lib/data";
 import type { QuizAnswers } from "@/lib/types";
 
@@ -22,14 +24,15 @@ export function QuizScreen({
 }) {
   const Q = STARTER_DATA.quiz;
   const done = Object.keys(answers).length === Q.length;
+  const [qi, setQi] = useState(0);
+  const q = Q[qi];
+  const answeredHere = answers[qi] !== undefined;
 
   const Card = ({
-    qi,
     side,
     data,
     chosen,
   }: {
-    qi: number;
     side: "a" | "b";
     data: (typeof Q)[0]["a"];
     chosen: boolean;
@@ -39,7 +42,8 @@ export function QuizScreen({
       onClick={() => setAnswers({ ...answers, [qi]: side })}
       style={{
         flex: 1,
-        aspectRatio: "3/4",
+        minWidth: 0,
+        height: "clamp(88px, 22svh, 132px)",
         border: "none",
         padding: 0,
         borderRadius: 10,
@@ -55,13 +59,14 @@ export function QuizScreen({
       <div
         style={{
           position: "absolute",
-          top: 8,
-          left: 8,
+          top: 6,
+          left: 6,
           fontFamily: "var(--font-mono), monospace",
-          fontSize: 8,
+          fontSize: 7,
           color: "rgba(0,0,0,0.5)",
           letterSpacing: 0.4,
           textAlign: "left",
+          lineHeight: 1.25,
         }}
       >
         [{side.toUpperCase()}]
@@ -71,11 +76,11 @@ export function QuizScreen({
       <div
         style={{
           position: "absolute",
-          bottom: 10,
-          left: 10,
-          right: 10,
+          bottom: 8,
+          left: 8,
+          right: 8,
           fontFamily: "var(--font-serif), serif",
-          fontSize: 15,
+          fontSize: "clamp(12px, 3.4vmin, 15px)",
           color: "#1a1a1a",
           textAlign: "left",
           lineHeight: 1.15,
@@ -87,14 +92,14 @@ export function QuizScreen({
         <div
           style={{
             position: "absolute",
-            top: 8,
-            right: 8,
-            width: 22,
-            height: 22,
+            top: 6,
+            right: 6,
+            width: 20,
+            height: 20,
             borderRadius: 999,
             background: accent,
             color: "#fff",
-            fontSize: 12,
+            fontSize: 11,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -106,32 +111,30 @@ export function QuizScreen({
     </button>
   );
 
+  const handleBack = () => {
+    if (qi === 0) onBack();
+    else setQi((i) => i - 1);
+  };
+
   return (
-    <div
-      style={{
-        padding: "0 20px 40px",
-        background: "#fafaf7",
-        minHeight: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div style={{ ...prototypeFillColumn, padding: "0 14px 10px" }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingTop: 8,
-          paddingBottom: 22,
+          flexShrink: 0,
+          paddingTop: 4,
+          paddingBottom: "clamp(6px, 1.4svh, 12px)",
         }}
       >
         <button
           type="button"
-          onClick={onBack}
+          onClick={handleBack}
           style={{
             background: "none",
             border: "none",
-            fontSize: 20,
+            fontSize: 18,
             cursor: "pointer",
             color: "#1a1a1a",
             padding: 0,
@@ -143,29 +146,38 @@ export function QuizScreen({
         <div style={{ width: 20 }} />
       </div>
 
-      <Caption style={{ marginBottom: 6 }}>Step 3 of 4</Caption>
-      <Display size={32} style={{ marginBottom: 22 }}>
+      <Caption style={{ marginBottom: 4, flexShrink: 0 }}>Step 3 of 4 · {qi + 1} of 3</Caption>
+      <Display
+        size={28}
+        style={{
+          marginBottom: "clamp(8px, 1.6svh, 16px)",
+          flexShrink: 0,
+          fontSize: "clamp(20px, 5.5vmin, 28px)",
+          lineHeight: 1.05,
+        }}
+      >
         What&apos;s your <em style={{ fontStyle: "italic" }}>vibe</em>?
       </Display>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        {Q.map((q, i) => (
-          <div key={q.q}>
-            <Caption style={{ marginBottom: 8 }}>
-              {String(i + 1).padStart(2, "0")} · {q.q}
-            </Caption>
-            <div style={{ display: "flex", gap: 10 }}>
-              <Card qi={i} side="a" data={q.a} chosen={answers[i] === "a"} />
-              <Card qi={i} side="b" data={q.b} chosen={answers[i] === "b"} />
-            </div>
-          </div>
-        ))}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+        <Caption style={{ marginBottom: 8 }}>{String(qi + 1).padStart(2, "0")} · {q.q}</Caption>
+        <div style={{ display: "flex", gap: 8 }}>
+          <Card side="a" data={q.a} chosen={answers[qi] === "a"} />
+          <Card side="b" data={q.b} chosen={answers[qi] === "b"} />
+        </div>
       </div>
 
-      <div style={{ height: 20 }} />
-      <PrimaryButton accent={accent} disabled={!done} onClick={onNext}>
-        {done ? "Build my capsule →" : `${Object.keys(answers).length} of 3 answered`}
-      </PrimaryButton>
+      <div style={{ flexShrink: 0, marginTop: 10 }}>
+        {qi < Q.length - 1 ? (
+          <PrimaryButton accent={accent} disabled={!answeredHere} onClick={() => setQi((i) => i + 1)}>
+            Next
+          </PrimaryButton>
+        ) : (
+          <PrimaryButton accent={accent} disabled={!done} onClick={onNext}>
+            {done ? "Build my capsule →" : `${Object.keys(answers).length} of 3 answered`}
+          </PrimaryButton>
+        )}
+      </div>
     </div>
   );
 }

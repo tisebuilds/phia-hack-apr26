@@ -211,11 +211,14 @@ export function Prototype() {
   return (
     <div
       style={{
-        minHeight: "100dvh",
+        minHeight: "100svh",
+        height: "100svh",
+        maxHeight: "100svh",
         background: "#0e0e10",
         display: "flex",
         flexDirection: "column",
         alignItems: "stretch",
+        overflow: "hidden",
         paddingTop: "max(12px, env(safe-area-inset-top))",
         paddingBottom: "max(12px, env(safe-area-inset-bottom))",
         paddingLeft: "max(16px, env(safe-area-inset-left))",
@@ -282,7 +285,7 @@ export function Prototype() {
           minHeight: 0,
           width: "100%",
           maxWidth: 480,
-          margin: "10px auto 0",
+          margin: "6px auto 0",
           display: "flex",
           flexDirection: "column",
         }}
@@ -291,15 +294,19 @@ export function Prototype() {
           style={{
             flex: 1,
             minHeight: 0,
-            overflowY: "auto",
-            WebkitOverflowScrolling: "touch",
-            overscrollBehaviorY: "contain",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
             background: "#fafaf7",
             borderRadius: 0,
             boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
           }}
         >
-          {!hydrated ? <div style={{ background: "#fafaf7", minHeight: "70dvh" }} /> : renderScreen()}
+          {!hydrated ? (
+            <div style={{ background: "#fafaf7", flex: 1, minHeight: 0 }} />
+          ) : (
+            renderScreen()
+          )}
         </div>
       </div>
 

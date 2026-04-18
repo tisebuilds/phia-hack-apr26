@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
+import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import type { Company } from "@/lib/types";
 
 export function LoadingScreen({
@@ -35,50 +36,56 @@ export function LoadingScreen({
   return (
     <div
       style={{
-        background: "#fafaf7",
-        minHeight: "100%",
-        display: "flex",
-        flexDirection: "column",
+        ...prototypeFillColumn,
+        padding: "0 22px 16px",
         justifyContent: "center",
-        padding: "0 30px",
       }}
     >
       <div
         style={{
-          width: 52,
-          height: 52,
+          width: 48,
+          height: 48,
           borderRadius: 999,
           border: `2px solid ${accent}`,
           borderTopColor: "transparent",
           animation: "starterSpin 1s linear infinite",
-          marginBottom: 40,
+          marginBottom: "clamp(16px, 4svh, 28px)",
+          flexShrink: 0,
         }}
       />
       <style>{`@keyframes starterSpin { to { transform: rotate(360deg); } }`}</style>
 
-      <Caption style={{ marginBottom: 8 }}>Building · {company?.name || "Deloitte"}</Caption>
-      <Display size={28} style={{ marginBottom: 28 }}>
+      <Caption style={{ marginBottom: 6, flexShrink: 0 }}>Building · {company?.name || "Deloitte"}</Caption>
+      <Display
+        size={26}
+        style={{
+          marginBottom: "clamp(12px, 3svh, 22px)",
+          flexShrink: 0,
+          fontSize: "clamp(20px, 5vmin, 28px)",
+          lineHeight: 1.08,
+        }}
+      >
         One moment.
         <br />
         <em style={{ fontStyle: "italic", opacity: 0.5 }}>Tailoring</em> the details.
       </Display>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, flexShrink: 0 }}>
         {lines.map((line, idx) => (
           <div
             key={line}
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 12,
+              gap: 10,
               opacity: idx <= i ? 1 : 0.25,
               transition: "opacity 280ms",
             }}
           >
             <div
               style={{
-                width: 14,
-                height: 14,
+                width: 13,
+                height: 13,
                 borderRadius: 999,
                 background: idx < i ? accent : "transparent",
                 border: `1.5px solid ${idx <= i ? accent : "rgba(0,0,0,0.2)"}`,
@@ -86,12 +93,15 @@ export function LoadingScreen({
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#fff",
-                fontSize: 9,
+                fontSize: 8,
+                flexShrink: 0,
               }}
             >
               {idx < i ? "✓" : ""}
             </div>
-            <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 14, color: "#1a1a1a" }}>{line}…</div>
+            <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: "clamp(12px, 3.2vmin, 14px)", color: "#1a1a1a", lineHeight: 1.35 }}>
+              {line}…
+            </div>
           </div>
         ))}
       </div>

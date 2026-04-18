@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
 import { ProductSlot } from "@/components/primitives/ProductSlot";
+import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import type { Company, Item } from "@/lib/types";
 
 export function CapsuleScreenB({
@@ -46,25 +47,32 @@ export function CapsuleScreenB({
   const rest = items.slice(1);
 
   return (
-    <div style={{ background: "#fafaf7", minHeight: "100%", paddingBottom: 40 }}>
-      <div style={{ padding: "8px 20px 16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <div style={{ ...prototypeFillColumn, padding: 0 }}>
+      <div style={{ padding: "6px 16px 8px", flexShrink: 0 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
           <Caption>Your starter capsule</Caption>
           <div
             style={{
-              padding: "5px 10px",
+              padding: "4px 8px",
               borderRadius: 999,
               background: "#1a1a1a",
               color: "#fff",
               fontFamily: "var(--font-mono), monospace",
-              fontSize: 9,
+              fontSize: 8,
               letterSpacing: 0.8,
             }}
           >
             ${display} / ${budget}
           </div>
         </div>
-        <Display size={30} style={{ marginBottom: 6 }}>
+        <Display
+          size={28}
+          style={{
+            marginBottom: 4,
+            fontSize: "clamp(20px, 5vmin, 30px)",
+            lineHeight: 1.05,
+          }}
+        >
           A wardrobe,
           <br />
           <em style={{ fontStyle: "italic" }}>one tap away.</em>
@@ -72,19 +80,43 @@ export function CapsuleScreenB({
         <div
           style={{
             fontFamily: "var(--font-sans), sans-serif",
-            fontSize: 12,
+            fontSize: "clamp(10px, 2.6vmin, 12px)",
             color: "rgba(0,0,0,0.55)",
-            marginBottom: 6,
+            marginBottom: 4,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
           }}
         >
           {company?.vibe}
         </div>
-        <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 12, color: "rgba(0,0,0,0.55)", marginBottom: 16 }}>
+        <div
+          style={{
+            fontFamily: "var(--font-sans), sans-serif",
+            fontSize: "clamp(10px, 2.6vmin, 12px)",
+            color: "rgba(0,0,0,0.55)",
+            marginBottom: 8,
+            display: "-webkit-box",
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}
+        >
           12 pieces for {company?.name || "Deloitte"} · {resaleCount} resale · retail ${retail.toLocaleString()}
         </div>
       </div>
 
-      <div style={{ padding: "0 20px 10px" }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          WebkitOverflowScrolling: "touch",
+          overscrollBehaviorY: "contain",
+          padding: "0 16px",
+        }}
+      >
         <button
           type="button"
           onClick={() => onItem(hero)}
@@ -98,15 +130,15 @@ export function CapsuleScreenB({
           }}
         >
           <div style={{ position: "relative" }}>
-            <div style={{ aspectRatio: "16/11" }}>
+            <div style={{ aspectRatio: "16/11", maxHeight: "min(38svh, 220px)" }}>
               <ProductSlot item={hero} style={{ aspectRatio: "16/11", height: "100%" }} />
             </div>
             <div
               style={{
                 position: "absolute",
-                left: 16,
-                bottom: 14,
-                right: 16,
+                left: 12,
+                bottom: 10,
+                right: 12,
                 color: "#fff",
                 display: "flex",
                 justifyContent: "space-between",
@@ -118,117 +150,115 @@ export function CapsuleScreenB({
                 <div
                   style={{
                     fontFamily: "var(--font-mono), monospace",
-                    fontSize: 9,
+                    fontSize: 8,
                     letterSpacing: 0.8,
-                    marginBottom: 4,
+                    marginBottom: 3,
                     opacity: 0.8,
                   }}
                 >
                   CORNERSTONE · 01
                 </div>
-                <div style={{ fontFamily: "var(--font-serif), serif", fontSize: 22, lineHeight: 1.1 }}>
+                <div style={{ fontFamily: "var(--font-serif), serif", fontSize: "clamp(16px, 4.5vmin, 20px)", lineHeight: 1.1 }}>
                   {hero.brand} {hero.name}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ fontFamily: "var(--font-serif), serif", fontSize: 22 }}>${hero.price}</div>
+                <div style={{ fontFamily: "var(--font-serif), serif", fontSize: "clamp(16px, 4.5vmin, 20px)" }}>${hero.price}</div>
                 {hero.resale ? (
-                  <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 10, opacity: 0.8 }}>
-                    via {hero.source}
-                  </div>
+                  <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 9, opacity: 0.8 }}>via {hero.source}</div>
                 ) : null}
               </div>
             </div>
           </div>
         </button>
-      </div>
 
-      <div style={{ padding: "10px 20px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {rest.map((it) => (
-          <button
-            type="button"
-            key={it.id}
-            onClick={() => onItem(it)}
-            style={{
-              background: "#fff",
-              border: "1px solid rgba(0,0,0,0.05)",
-              borderRadius: 12,
-              padding: 8,
-              cursor: "pointer",
-              textAlign: "left",
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-            }}
-          >
-            <div style={{ width: 56, flexShrink: 0 }}>
-              <ProductSlot item={it} compact />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontFamily: "var(--font-sans), sans-serif",
-                  fontSize: 9.5,
-                  color: "rgba(0,0,0,0.5)",
-                  textTransform: "uppercase",
-                  letterSpacing: 0.3,
-                }}
-              >
-                {it.brand}
+        <div style={{ padding: "10px 0 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          {rest.map((it) => (
+            <button
+              type="button"
+              key={it.id}
+              onClick={() => onItem(it)}
+              style={{
+                background: "#fff",
+                border: "1px solid rgba(0,0,0,0.05)",
+                borderRadius: 10,
+                padding: 6,
+                cursor: "pointer",
+                textAlign: "left",
+                display: "flex",
+                gap: 8,
+                alignItems: "center",
+              }}
+            >
+              <div style={{ width: 48, flexShrink: 0 }}>
+                <ProductSlot item={it} compact />
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-sans), sans-serif",
-                  fontSize: 11,
-                  lineHeight: 1.2,
-                  marginTop: 2,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {it.name}
-              </div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 5, marginTop: 3 }}>
-                <span
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
                   style={{
-                    fontFamily: "var(--font-serif), serif",
-                    fontSize: 13,
-                    color: it.resale ? accent : "#1a1a1a",
+                    fontFamily: "var(--font-sans), sans-serif",
+                    fontSize: 9,
+                    color: "rgba(0,0,0,0.5)",
+                    textTransform: "uppercase",
+                    letterSpacing: 0.3,
                   }}
                 >
-                  ${it.price}
-                </span>
-                {it.resale ? (
+                  {it.brand}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-sans), sans-serif",
+                    fontSize: 10,
+                    lineHeight: 1.2,
+                    marginTop: 2,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {it.name}
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginTop: 2 }}>
                   <span
                     style={{
-                      fontFamily: "var(--font-mono), monospace",
-                      fontSize: 8,
-                      color: "rgba(0,0,0,0.4)",
-                      letterSpacing: 0.3,
+                      fontFamily: "var(--font-serif), serif",
+                      fontSize: 12,
+                      color: it.resale ? accent : "#1a1a1a",
                     }}
                   >
-                    RESALE
+                    ${it.price}
                   </span>
-                ) : null}
+                  {it.resale ? (
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono), monospace",
+                        fontSize: 7,
+                        color: "rgba(0,0,0,0.4)",
+                        letterSpacing: 0.3,
+                      }}
+                    >
+                      RESALE
+                    </span>
+                  ) : null}
+                </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div style={{ padding: "22px 20px 0", display: "flex", gap: 10 }}>
+      <div style={{ padding: "10px 16px 10px", display: "flex", gap: 8, flexShrink: 0 }}>
         <button
           type="button"
           onClick={onOutfits}
           style={{
             flex: 1,
-            height: 48,
+            height: 44,
             borderRadius: 999,
             border: "1px solid rgba(0,0,0,0.15)",
             background: "#fff",
             fontFamily: "var(--font-sans), sans-serif",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 500,
             cursor: "pointer",
             color: "#1a1a1a",
@@ -241,13 +271,13 @@ export function CapsuleScreenB({
           onClick={onSummary}
           style={{
             flex: 1,
-            height: 48,
+            height: 44,
             borderRadius: 999,
             border: "none",
             background: accent,
             color: "#fff",
             fontFamily: "var(--font-sans), sans-serif",
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: 600,
             cursor: "pointer",
           }}
