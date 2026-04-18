@@ -39,6 +39,7 @@ export function createDefaultPersistedState(): PersistedStateV1 {
   return {
     version: 1,
     starterMode: "work",
+    homeMilestoneChosen: false,
     screen: "home",
     season: "spring",
     quiz: {},
@@ -69,9 +70,13 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
 
   const screen = normalizePersistedScreen(p.screen) ?? initial.screen;
 
+  const homeMilestoneChosen =
+    typeof p.homeMilestoneChosen === "boolean" ? p.homeMilestoneChosen : true;
+
   return {
     version: 1,
     starterMode,
+    homeMilestoneChosen,
     screen,
     season: isSeason(p.season)
       ? p.season

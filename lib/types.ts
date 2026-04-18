@@ -83,6 +83,8 @@ export type StarterMode = (typeof STARTER_MODES)[number];
 export type PersistedStateV1 = {
   version: 1;
   starterMode: StarterMode;
+  /** User picked what they're prepping for on home; unlocks hero + flow. */
+  homeMilestoneChosen: boolean;
   screen: ScreenId;
   season: Season;
   quiz: QuizAnswers;

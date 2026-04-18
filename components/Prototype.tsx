@@ -123,6 +123,16 @@ export function Prototype() {
     [setSnap],
   );
 
+  const pickHomeMilestone = useCallback((mode: StarterMode) => {
+    setSnap((prev) => ({
+      ...prev,
+      starterMode: mode,
+      homeMilestoneChosen: true,
+      tweaks: { ...prev.tweaks, company: coerceCompanyIdForMode(mode, prev.tweaks.company) },
+      quiz: {},
+    }));
+  }, [setSnap]);
+
   const goFromLab = useCallback(
     (s: ScreenId) => {
       go(s);
@@ -139,7 +149,13 @@ export function Prototype() {
     switch (snap.screen) {
       case "home":
         return (
-          <HomeScreen accent={accent} homeHero={pack.homeHero} onOpen={() => go("company")} />
+          <HomeScreen
+            accent={accent}
+            homeHero={pack.homeHero}
+            homeMilestoneChosen={snap.homeMilestoneChosen}
+            onPickMilestone={pickHomeMilestone}
+            onOpen={() => go("company")}
+          />
         );
       case "company":
         return (
