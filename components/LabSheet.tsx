@@ -7,23 +7,19 @@ import type { ScreenId } from "@/lib/types";
 export function LabSheet({
   open,
   onClose,
-  accent,
-  flow,
-  onFlowChange,
   contextLine,
   showDevNav,
   screen,
   onGoScreen,
+  onRestartDemo,
 }: {
   open: boolean;
   onClose: () => void;
-  accent: string;
-  flow: "A" | "B";
-  onFlowChange: (f: "A" | "B") => void;
   contextLine: string;
   showDevNav: boolean;
   screen: ScreenId;
   onGoScreen: (s: ScreenId) => void;
+  onRestartDemo: () => void;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -56,7 +52,7 @@ export function LabSheet({
     >
       <button
         type="button"
-        aria-label="Close lab"
+        aria-label="Close settings"
         onClick={onClose}
         style={{
           position: "absolute",
@@ -71,9 +67,9 @@ export function LabSheet({
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="lab-sheet-title"
+        aria-labelledby="settings-sheet-title"
         onClick={(e) => e.stopPropagation()}
-        id="lab-sheet-panel"
+        id="settings-sheet-panel"
         style={{
           position: "relative",
           width: "100%",
@@ -117,7 +113,7 @@ export function LabSheet({
         >
           <div>
             <div
-              id="lab-sheet-title"
+              id="settings-sheet-title"
               style={{
                 fontFamily: "var(--font-sans), sans-serif",
                 fontSize: 15,
@@ -126,7 +122,7 @@ export function LabSheet({
                 color: "rgba(255,255,255,0.95)",
               }}
             >
-              Lab
+              Settings
             </div>
             <div
               style={{
@@ -161,45 +157,30 @@ export function LabSheet({
           </button>
         </div>
 
-        <div
+        <button
+          type="button"
+          onClick={() => {
+            onRestartDemo();
+            onClose();
+          }}
           style={{
-            fontFamily: "var(--font-sans), sans-serif",
-            fontSize: 10,
-            letterSpacing: 2,
-            textTransform: "uppercase",
-            fontWeight: 600,
-            color: "rgba(255,255,255,0.38)",
-            marginBottom: 8,
+            width: "100%",
             flexShrink: 0,
+            marginBottom: showDevNav ? 16 : 0,
+            padding: "12px 14px",
+            borderRadius: 12,
+            border: "1px solid rgba(255,80,80,0.35)",
+            background: "rgba(255,80,80,0.08)",
+            fontFamily: "var(--font-sans), sans-serif",
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: -0.1,
+            color: "rgba(255,200,200,0.95)",
+            cursor: "pointer",
           }}
         >
-          Flow
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, flexShrink: 0 }}>
-          {(["A", "B"] as const).map((f) => (
-            <button
-              type="button"
-              key={f}
-              onClick={() => onFlowChange(f)}
-              style={{
-                width: "100%",
-                textAlign: "left",
-                padding: "12px 14px",
-                borderRadius: 12,
-                border: `1px solid ${flow === f ? accent : "rgba(255,255,255,0.12)"}`,
-                background: flow === f ? accent : "rgba(255,255,255,0.04)",
-                color: flow === f ? "#fff" : "rgba(255,255,255,0.78)",
-                fontFamily: "var(--font-sans), sans-serif",
-                fontSize: 13,
-                fontWeight: 500,
-                letterSpacing: 0.1,
-                cursor: "pointer",
-              }}
-            >
-              Flow {f} · {f === "A" ? "Editorial grid" : "Mosaic hero"}
-            </button>
-          ))}
-        </div>
+          Restart demo
+        </button>
 
         {showDevNav ? (
           <>
@@ -211,7 +192,7 @@ export function LabSheet({
                 textTransform: "uppercase",
                 fontWeight: 600,
                 color: "rgba(255,255,255,0.38)",
-                marginTop: 20,
+                marginTop: 4,
                 marginBottom: 8,
                 flexShrink: 0,
               }}

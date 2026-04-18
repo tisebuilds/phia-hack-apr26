@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProgressDots } from "@/components/primitives/ProgressDots";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import { STARTER_DATA } from "@/lib/data";
 import type { QuizAnswers } from "@/lib/types";
+
+const QUIZ_SIDES = ["a", "b", "c", "d"] as const;
+type QuizSide = (typeof QUIZ_SIDES)[number];
 
 export function QuizScreen({
   accent,
@@ -33,29 +35,61 @@ export function QuizScreen({
     data,
     chosen,
   }: {
-    side: "a" | "b";
+    side: QuizSide;
     data: (typeof Q)[0]["a"];
     chosen: boolean;
-  }) => (
+  }) => {
+    const photo = Boolean(data.image);
+    return (
     <button
       type="button"
       onClick={() => setAnswers({ ...answers, [qi]: side })}
       style={{
-        flex: 1,
+        width: "100%",
+        height: "100%",
+        minHeight: "clamp(72px, 14svh, 104px)",
         minWidth: 0,
-        height: "clamp(88px, 22svh, 132px)",
         border: "none",
         padding: 0,
         borderRadius: 10,
         cursor: "pointer",
         position: "relative",
-        background: "#ece7dd",
-        backgroundImage: "repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
+        overflow: "hidden",
+        background: photo ? "#1a1410" : "#ece7dd",
+        backgroundImage: photo
+          ? undefined
+          : "repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 8px)",
         outline: chosen ? `2px solid ${accent}` : "2px solid transparent",
         outlineOffset: 2,
         transition: "outline 160ms",
       }}
     >
+      {data.image ? (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={data.image}
+            alt=""
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background:
+                "linear-gradient(180deg, rgba(0,0,0,0.42) 0%, transparent 38%, transparent 52%, rgba(0,0,0,0.55) 100%)",
+              pointerEvents: "none",
+            }}
+          />
+        </>
+      ) : null}
       <div
         style={{
           position: "absolute",
@@ -63,7 +97,7 @@ export function QuizScreen({
           left: 6,
           fontFamily: "var(--font-mono), monospace",
           fontSize: 7,
-          color: "rgba(0,0,0,0.5)",
+          color: photo ? "rgba(255,255,255,0.82)" : "rgba(0,0,0,0.5)",
           letterSpacing: 0.4,
           textAlign: "left",
           lineHeight: 1.25,
@@ -81,9 +115,10 @@ export function QuizScreen({
           right: 8,
           fontFamily: "var(--font-serif), serif",
           fontSize: "clamp(12px, 3.4vmin, 15px)",
-          color: "#1a1a1a",
+          color: photo ? "#faf8f5" : "#1a1a1a",
           textAlign: "left",
           lineHeight: 1.15,
+          textShadow: photo ? "0 1px 10px rgba(0,0,0,0.55)" : undefined,
         }}
       >
         {data.label}
@@ -109,7 +144,8 @@ export function QuizScreen({
         </div>
       ) : null}
     </button>
-  );
+    );
+  };
 
   const handleBack = () => {
     if (qi === 0) onBack();
@@ -146,7 +182,6 @@ export function QuizScreen({
         <div style={{ width: 20 }} />
       </div>
 
-      <Caption style={{ marginBottom: 4, flexShrink: 0 }}>Step 3 of 4 · {qi + 1} of 3</Caption>
       <Display
         size={28}
         style={{
@@ -156,14 +191,23 @@ export function QuizScreen({
           lineHeight: 1.05,
         }}
       >
-        What&apos;s your <em style={{ fontStyle: "italic" }}>vibe</em>?
+        {q.q}
       </Display>
 
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <Caption style={{ marginBottom: 8 }}>{String(qi + 1).padStart(2, "0")} · {q.q}</Caption>
-        <div style={{ display: "flex", gap: 8 }}>
-          <Card side="a" data={q.a} chosen={answers[qi] === "a"} />
-          <Card side="b" data={q.b} chosen={answers[qi] === "b"} />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gridTemplateRows: "1fr 1fr",
+            gap: 8,
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
+          {QUIZ_SIDES.map((side) => (
+            <Card key={side} side={side} data={q[side]} chosen={answers[qi] === side} />
+          ))}
         </div>
       </div>
 

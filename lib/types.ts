@@ -3,6 +3,8 @@ export type Company = {
   name: string;
   role: string;
   vibe: string;
+  /** Shown on company pick card: "Sourced from N current employees …" */
+  sourceEmployeeCount: number;
 };
 
 export type Item = {
@@ -30,10 +32,19 @@ export type Vibe = {
   note: string;
 };
 
+export type QuizChoice = {
+  label: string;
+  hint: string;
+  /** Path under `public/`, e.g. `/quiz/matte-leather.png` */
+  image?: string;
+};
+
 export type QuizCard = {
   q: string;
-  a: { label: string; hint: string };
-  b: { label: string; hint: string };
+  a: QuizChoice;
+  b: QuizChoice;
+  c: QuizChoice;
+  d: QuizChoice;
 };
 
 export type StarterData = {
@@ -58,20 +69,19 @@ export type ScreenId =
   | "datebudget"
   | "quiz"
   | "loading"
-  | "capsule"
   | "item"
   | "outfits"
   | "summary";
 
-export type FlowId = "A" | "B";
+export type QuizAnswers = Record<number, "a" | "b" | "c" | "d">;
 
-export type QuizAnswers = Record<number, "a" | "b">;
+export const SEASONS = ["spring", "summer", "fall", "winter"] as const;
+export type Season = (typeof SEASONS)[number];
 
 export type PersistedStateV1 = {
   version: 1;
   screen: ScreenId;
-  flow: FlowId;
-  date: number;
+  season: Season;
   quiz: QuizAnswers;
   tweaks: Tweaks;
   selectedItemId: number | null;

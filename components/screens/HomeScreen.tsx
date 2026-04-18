@@ -1,27 +1,72 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  Library,
+  LineChart,
+  ScanSearch,
+  TrendingDown,
+  UserRound,
+  X,
+} from "lucide-react";
 import { Caption } from "@/components/primitives/Caption";
-import { Display } from "@/components/primitives/Display";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 
-export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => void }) {
-  const tiles = [
-    { label: "Price check", caption: "Scan any link" },
-    { label: "Collections", caption: "41 saved" },
-    { label: "Trend report", caption: "Updated today" },
-    { label: "Price drops", caption: "3 new" },
+const iconStroke = 1.5 as const;
+
+const topIconColor = "#3a3a3a";
+const topIconBtn = {
+  width: 32,
+  height: 32,
+  borderRadius: 999,
+  border: "none",
+  background: "#e6e6e4",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: topIconColor,
+  cursor: "pointer",
+  flexShrink: 0,
+  padding: 0,
+} as const;
+
+export function HomeScreen({
+  accent,
+  onOpen,
+  onNotifications,
+  onClose,
+}: {
+  accent: string;
+  onOpen: () => void;
+  onNotifications?: () => void;
+  onClose?: () => void;
+}) {
+  const tiles: ReadonlyArray<{ label: string; caption: string; Icon: LucideIcon }> = [
+    { label: "Price check", caption: "Scan any link", Icon: ScanSearch },
+    { label: "Collections", caption: "41 saved", Icon: Library },
+    { label: "Trend report", caption: "Updated today", Icon: LineChart },
+    { label: "Price drops", caption: "3 new", Icon: TrendingDown },
   ];
 
   return (
-    <div style={{ ...prototypeFillColumn, padding: "0 14px 6px" }}>
+    <div style={{ ...prototypeFillColumn, padding: "0 14px 6px", color: "#000" }}>
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           flexShrink: 0,
-          paddingTop: 4,
-          paddingBottom: "clamp(8px, 1.8svh, 14px)",
+          marginLeft: -14,
+          marginRight: -14,
+          paddingLeft: 14,
+          paddingRight: 14,
+          paddingTop: "clamp(6px, 1.2svh, 10px)",
+          paddingBottom: "clamp(10px, 2svh, 16px)",
+          background: "#f0f0ee",
+          borderTopLeftRadius: 14,
+          borderTopRightRadius: 14,
         }}
       >
         <div
@@ -29,45 +74,26 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
             fontFamily: "var(--font-serif), serif",
             fontSize: "clamp(22px, 5.5vmin, 28px)",
             fontStyle: "italic",
+            fontWeight: 400,
             color: "#1a1a1a",
+            letterSpacing: "-0.02em",
+            textTransform: "lowercase",
           }}
         >
           phia
         </div>
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 999,
-            background: "#e6e2d9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "var(--font-sans), sans-serif",
-            fontSize: 11,
-            fontWeight: 600,
-            color: "#1a1a1a",
-            flexShrink: 0,
-          }}
-        >
-          S
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <button type="button" aria-label="Notifications" style={topIconBtn} onClick={() => onNotifications?.()}>
+            <Bell size={14} strokeWidth={iconStroke} aria-hidden />
+          </button>
+          <button type="button" aria-label="Account" style={topIconBtn}>
+            <UserRound size={14} strokeWidth={iconStroke} aria-hidden />
+          </button>
+          <button type="button" aria-label="Close" style={topIconBtn} onClick={() => onClose?.()}>
+            <X size={13} strokeWidth={iconStroke} aria-hidden />
+          </button>
         </div>
       </div>
-
-      <Caption style={{ marginBottom: 4, flexShrink: 0 }}>Good morning, Sarah</Caption>
-      <Display
-        size={30}
-        style={{
-          marginBottom: "clamp(8px, 1.6svh, 18px)",
-          flexShrink: 0,
-          fontSize: "clamp(22px, 6.2vmin, 30px)",
-          lineHeight: 1.05,
-        }}
-      >
-        Your <em style={{ fontStyle: "italic" }}>first‑day</em> closet
-        <br />
-        is two weeks out.
-      </Display>
 
       <div
         style={{
@@ -75,6 +101,8 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
           minHeight: 0,
           display: "flex",
           flexDirection: "column",
+          marginTop: "clamp(6px, 1.4svh, 14px)",
+          gap: "clamp(6px, 1svh, 10px)",
         }}
       >
         <button
@@ -83,6 +111,7 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
           style={{
             flex: 1,
             minHeight: 0,
+            maxHeight: "37.5%",
             width: "100%",
             padding: 0,
             border: "none",
@@ -111,40 +140,25 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
             <div
               style={{
                 position: "absolute",
-                top: 10,
-                right: 12,
-                fontFamily: "var(--font-mono), monospace",
-                fontSize: 8.5,
-                color: "rgba(255,255,255,0.7)",
-                letterSpacing: 0.8,
+                top: "clamp(10px, 2svh, 16px)",
+                right: "clamp(12px, 3.5vmin, 18px)",
+                zIndex: 1,
+                borderRadius: 999,
+                padding: "5px 10px",
+                background: "rgba(255,255,255,0.16)",
+                border: "1px solid rgba(255,255,255,0.22)",
+                boxShadow: "0 1px 0 rgba(0,0,0,0.06)",
               }}
             >
-              NEW · MODE
-            </div>
-
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "baseline",
-                gap: 4,
-                fontFamily: "var(--font-serif), serif",
-                fontSize: 12,
-                marginBottom: "clamp(6px, 1.4svh, 16px)",
-                flexShrink: 0,
-              }}
-            >
-              <span style={{ fontStyle: "italic" }}>phia</span>
-              <span
+              <Caption
                 style={{
-                  fontFamily: "var(--font-sans), sans-serif",
-                  fontSize: 8,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  color: "rgba(255,255,255,0.75)",
+                  color: "rgba(255,255,255,0.92)",
+                  fontSize: 9,
+                  letterSpacing: 0.55,
                 }}
               >
-                Starter
-              </span>
+                2 mins
+              </Caption>
             </div>
 
             <div
@@ -155,6 +169,7 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
                 flexDirection: "column",
                 justifyContent: "center",
                 overflow: "hidden",
+                paddingRight: "clamp(72px, 22vmin, 118px)",
               }}
             >
               <div
@@ -166,11 +181,7 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
                   marginBottom: "clamp(4px, 1svh, 10px)",
                 }}
               >
-                For the <em style={{ fontStyle: "italic" }}>first job</em>
-                <br />
-                you haven&apos;t figured
-                <br />
-                out yet.
+                Stop guessing what to wear to work.
               </div>
 
               <div
@@ -185,7 +196,7 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
                   overflow: "hidden",
                 }}
               >
-                A 12-piece capsule, built for your company, your budget, your first 90 days.
+                A starter wardrobe that fits your actual job — built around your workplace, budget, and style.
               </div>
             </div>
 
@@ -193,14 +204,12 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
               style={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
+                justifyContent: "flex-start",
                 flexShrink: 0,
                 paddingTop: "clamp(8px, 1.6svh, 14px)",
                 marginTop: "auto",
-                borderTop: "1px solid rgba(255,255,255,0.14)",
               }}
             >
-              <Caption style={{ color: "rgba(255,255,255,0.6)" }}>Takes 90 seconds</Caption>
               <div
                 style={{
                   fontFamily: "var(--font-sans), sans-serif",
@@ -212,72 +221,78 @@ export function HomeScreen({ accent, onOpen }: { accent: string; onOpen: () => v
                   flexShrink: 0,
                 }}
               >
-                Start building <span>→</span>
+                Build my capsule
+                <ArrowRight size={14} strokeWidth={iconStroke} aria-hidden style={{ flexShrink: 0 }} />
               </div>
             </div>
           </div>
         </button>
-      </div>
 
-      <Caption style={{ marginTop: "clamp(8px, 1.8svh, 14px)", marginBottom: 8, flexShrink: 0 }}>Your Phia</Caption>
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 8,
-          flexShrink: 0,
-        }}
-      >
-        {tiles.map((t) => (
-          <div
-            key={t.label}
-            style={{
-              background: "#fff",
-              borderRadius: 12,
-              padding: "8px 10px 10px",
-              minHeight: "clamp(56px, 12svh, 76px)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              border: "1px solid rgba(0,0,0,0.05)",
-              overflow: "hidden",
-            }}
-          >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 8,
+            flexShrink: 0,
+          }}
+        >
+          {tiles.map((t) => (
             <div
+              key={t.label}
               style={{
-                width: 18,
-                height: 18,
-                borderRadius: 4,
-                flexShrink: 0,
-                background:
-                  "repeating-linear-gradient(135deg, rgba(0,0,0,0.08) 0 1px, transparent 1px 5px)",
+                background: "#fff",
+                borderRadius: 12,
+                padding: "8px 10px 10px",
+                minHeight: "clamp(56px, 12svh, 76px)",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                border: "1px solid rgba(0,0,0,0.05)",
+                overflow: "hidden",
               }}
-            />
-            <div style={{ minWidth: 0 }}>
+            >
               <div
                 style={{
-                  fontFamily: "var(--font-sans), sans-serif",
-                  fontSize: "clamp(12px, 3.2vmin, 14px)",
-                  fontWeight: 500,
-                  lineHeight: 1.2,
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  background: "#f0f0ee",
+                  color: "#3a3a3a",
                 }}
+                aria-hidden
               >
-                {t.label}
+                <t.Icon size={20} strokeWidth={iconStroke} aria-hidden />
               </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-sans), sans-serif",
-                  fontSize: "clamp(9px, 2.5vmin, 11px)",
-                  color: "rgba(0,0,0,0.5)",
-                  marginTop: 2,
-                  lineHeight: 1.2,
-                }}
-              >
-                {t.caption}
+              <div style={{ minWidth: 0 }}>
+                <div
+                  style={{
+                    fontFamily: "var(--font-sans), sans-serif",
+                    fontSize: "clamp(12px, 3.2vmin, 14px)",
+                    fontWeight: 500,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {t.label}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-sans), sans-serif",
+                    fontSize: "clamp(9px, 2.5vmin, 11px)",
+                    color: "rgba(0,0,0,0.5)",
+                    marginTop: 2,
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {t.caption}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

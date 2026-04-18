@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import { productImageSrc, productImageSrcVariant } from "@/lib/itemPhotoPath";
 import type { Item } from "@/lib/types";
 
 export function ProductSlot({
@@ -10,17 +11,30 @@ export function ProductSlot({
   style = {},
   showBadge = true,
   compact = false,
+  showOverlays = true,
+  /** When set, cycles through all labeled shots for this item's category (outfits / capsule density). */
+  labeledVariantSalt,
 }: {
   item: Item;
   style?: CSSProperties;
   showBadge?: boolean;
   compact?: boolean;
+  /** When false, hides category/ID row and placeholder caption (clean tile for lists). */
+  showOverlays?: boolean;
+  labeledVariantSalt?: number;
 }) {
   const [imgFailed, setImgFailed] = useState(false);
   const stripe =
     "repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0 1px, transparent 1px 8px)";
-  const src = `/products/${item.id}.png`;
+  const src =
+    labeledVariantSalt != null
+      ? productImageSrcVariant(item, labeledVariantSalt)
+      : productImageSrc(item.id);
   const showImage = !imgFailed;
+
+  useEffect(() => {
+    setImgFailed(false);
+  }, [src]);
 
   return (
     <div
@@ -37,6 +51,7 @@ export function ProductSlot({
     >
       {showImage ? (
         <Image
+          key={src}
           src={src}
           alt=""
           fill
@@ -56,31 +71,41 @@ export function ProductSlot({
           }}
         />
       )}
-      <div
-        style={{
-          position: "absolute",
-          top: 6,
-          left: 6,
-          right: 6,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          fontFamily: "var(--font-mono), ui-monospace, monospace",
-          fontSize: compact ? 7 : 8,
-          color: "rgba(0,0,0,0.45)",
-          letterSpacing: 0.3,
-          textTransform: "uppercase",
-        }}
-      >
-        <span>{item.category}</span>
-        <span>#{String(item.id).padStart(2, "0")}</span>
-      </div>
+      {showOverlays ? (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            gap: 8,
+            padding: compact ? "5px 7px" : "6px 8px",
+            background: "rgba(26, 26, 26, 0.78)",
+            backdropFilter: "blur(6px)",
+            WebkitBackdropFilter: "blur(6px)",
+            fontFamily: "var(--font-mono), ui-monospace, monospace",
+            fontSize: compact ? 7 : 8,
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.95)",
+            letterSpacing: 0.35,
+            textTransform: "uppercase",
+          }}
+        >
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {item.category}
+          </span>
+          <span style={{ flexShrink: 0, opacity: 0.85 }}>#{String(item.id).padStart(2, "0")}</span>
+        </div>
+      ) : null}
       {showBadge && item.resale && (
         <div
           style={{
             position: "absolute",
-            top: 8,
-            right: 8,
+            bottom: showOverlays ? 6 : 8,
+            right: showOverlays ? 6 : 8,
             padding: "3px 6px",
             borderRadius: 4,
             background: "#1a1a1a",
@@ -95,21 +120,23 @@ export function ProductSlot({
           Resale
         </div>
       )}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 6,
-          left: 6,
-          right: 6,
-          fontFamily: "var(--font-mono), ui-monospace, monospace",
-          fontSize: compact ? 7 : 8,
-          color: "rgba(0,0,0,0.42)",
-          textAlign: "center",
-          letterSpacing: 0.3,
-        }}
-      >
-        [{item.category.toLowerCase()} shot]
-      </div>
+      {showOverlays && !showImage ? (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 6,
+            left: 6,
+            right: 6,
+            fontFamily: "var(--font-mono), ui-monospace, monospace",
+            fontSize: compact ? 7 : 8,
+            color: "rgba(0,0,0,0.42)",
+            textAlign: "center",
+            letterSpacing: 0.3,
+          }}
+        >
+          [{item.category.toLowerCase()} shot]
+        </div>
+      ) : null}
     </div>
   );
 }

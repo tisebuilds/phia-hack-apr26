@@ -4,8 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { LabSheet } from "@/components/LabSheet";
 import { TweaksPanel } from "@/components/TweaksPanel";
-import { CapsuleScreenA } from "@/components/screens/CapsuleScreenA";
-import { CapsuleScreenB } from "@/components/screens/CapsuleScreenB";
 import { CompanyScreen } from "@/components/screens/CompanyScreen";
 import { DateBudgetScreen } from "@/components/screens/DateBudgetScreen";
 import { HomeScreen } from "@/components/screens/HomeScreen";
@@ -19,7 +17,7 @@ import { STARTER_DATA } from "@/lib/data";
 import { createDefaultPersistedState, mergePersistedState, STORAGE_KEY } from "@/lib/persistedDefaults";
 import { PITCH_NOTES } from "@/lib/pitchNotes";
 import { usePersistedState } from "@/lib/usePersistedState";
-import type { Company, PersistedStateV1, ScreenId, Tweaks } from "@/lib/types";
+import type { Company, PersistedStateV1, ScreenId, Season, Tweaks } from "@/lib/types";
 
 export function Prototype() {
   const searchParams = useSearchParams();
@@ -52,6 +50,11 @@ export function Prototype() {
     return idx >= 0 ? idx + 1 : 1;
   }, [items, resolvedItem.id]);
 
+  const similarItems = useMemo(
+    () => items.filter((i) => i.id !== resolvedItem.id).slice(0, 5),
+    [items, resolvedItem.id],
+  );
+
   const accent = snap.tweaks.accent;
 
   const go = useCallback(
@@ -81,7 +84,7 @@ export function Prototype() {
     [setSnap],
   );
 
-  const setBudgetFromDate = useCallback(
+  const setBudget = useCallback(
     (v: number) => {
       setSnap((prev) => ({
         ...prev,
@@ -92,7 +95,7 @@ export function Prototype() {
   );
 
   const onLoadingDone = useCallback(() => {
-    setSnap((prev) => ({ ...prev, screen: "capsule" }));
+    setSnap((prev) => ({ ...prev, screen: "outfits" }));
   }, [setSnap]);
 
   const labContextLine = useMemo(
@@ -108,10 +111,16 @@ export function Prototype() {
     [go],
   );
 
+  const restartDemo = useCallback(() => {
+    setSnap(createDefaultPersistedState());
+  }, [setSnap]);
+
   const renderScreen = () => {
     switch (snap.screen) {
       case "home":
-        return <HomeScreen accent={accent} onOpen={() => go("company")} />;
+        return (
+          <HomeScreen accent={accent} onOpen={() => go("company")} />
+        );
       case "company":
         return (
           <CompanyScreen
@@ -126,10 +135,10 @@ export function Prototype() {
         return (
           <DateBudgetScreen
             accent={accent}
-            date={snap.date}
-            setDate={(d) => setSnap((p) => ({ ...p, date: d }))}
+            season={snap.season}
+            setSeason={(s: Season) => setSnap((p) => ({ ...p, season: s }))}
             budget={snap.tweaks.budget}
-            setBudget={setBudgetFromDate}
+            setBudget={setBudget}
             onBack={() => go("company")}
             onNext={() => go("quiz")}
           />
@@ -146,39 +155,14 @@ export function Prototype() {
         );
       case "loading":
         return <LoadingScreen accent={accent} company={company} onDone={onLoadingDone} />;
-      case "capsule":
-        return snap.flow === "A" ? (
-          <CapsuleScreenA
-            accent={accent}
-            items={items}
-            company={company}
-            budget={snap.tweaks.budget}
-            onItem={(it) => {
-              setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
-            }}
-            onOutfits={() => go("outfits")}
-            onSummary={() => go("summary")}
-          />
-        ) : (
-          <CapsuleScreenB
-            accent={accent}
-            items={items}
-            company={company}
-            budget={snap.tweaks.budget}
-            onItem={(it) => {
-              setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
-            }}
-            onOutfits={() => go("outfits")}
-            onSummary={() => go("summary")}
-          />
-        );
       case "item":
         return (
           <ItemDetailScreen
             accent={accent}
             item={resolvedItem}
             itemIndex={itemDetailIndex}
-            onBack={() => go("capsule")}
+            similarItems={similarItems}
+            onBack={() => go("outfits")}
           />
         );
       case "outfits":
@@ -186,7 +170,10 @@ export function Prototype() {
           <OutfitMatrixScreen
             accent={accent}
             items={items}
-            onBack={() => go("capsule")}
+            onItem={(it) => {
+              setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
+            }}
+            onBack={() => go("quiz")}
             onSummary={() => go("summary")}
           />
         );
@@ -198,7 +185,6 @@ export function Prototype() {
             company={company}
             budget={snap.tweaks.budget}
             onBack={() => go("outfits")}
-            onRestart={() => go("home")}
           />
         );
       default:
@@ -241,25 +227,24 @@ export function Prototype() {
         }}
       >
         <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", minWidth: 0 }}>
-          <span style={{ fontFamily: "var(--font-serif), serif", fontSize: 22, fontStyle: "italic" }}>phia</span>
           <span
             style={{
               fontFamily: "var(--font-sans), sans-serif",
-              fontSize: 10,
-              letterSpacing: 2,
-              textTransform: "uppercase",
-              fontWeight: 500,
-              color: "rgba(255,255,255,0.45)",
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: -0.2,
+              color: "rgba(255,255,255,0.88)",
+              lineHeight: 1.25,
             }}
           >
-            Starter · Prototype
+            Tise&apos;s Design-a-thon Submission
           </span>
         </div>
         <button
           type="button"
           aria-haspopup="dialog"
           aria-expanded={labOpen}
-          aria-controls={labOpen ? "lab-sheet-panel" : undefined}
+          aria-controls={labOpen ? "settings-sheet-panel" : undefined}
           onClick={() => setLabOpen(true)}
           style={{
             flexShrink: 0,
@@ -275,7 +260,7 @@ export function Prototype() {
             cursor: "pointer",
           }}
         >
-          Lab
+          Settings
         </button>
       </div>
 
@@ -297,13 +282,13 @@ export function Prototype() {
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
-            background: "#fafaf7",
+            background: "#F5F5F5",
             borderRadius: 0,
             boxShadow: "0 0 0 1px rgba(255,255,255,0.06)",
           }}
         >
           {!hydrated ? (
-            <div style={{ background: "#fafaf7", flex: 1, minHeight: 0 }} />
+            <div style={{ background: "#F5F5F5", flex: 1, minHeight: 0 }} />
           ) : (
             renderScreen()
           )}
@@ -340,13 +325,11 @@ export function Prototype() {
       <LabSheet
         open={labOpen}
         onClose={() => setLabOpen(false)}
-        accent={accent}
-        flow={snap.flow}
-        onFlowChange={(f) => setSnap((prev) => ({ ...prev, flow: f }))}
         contextLine={labContextLine}
         showDevNav={showDevNav}
         screen={snap.screen}
         onGoScreen={goFromLab}
+        onRestartDemo={restartDemo}
       />
     </div>
   );

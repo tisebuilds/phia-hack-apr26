@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import type { Company } from "@/lib/types";
@@ -55,7 +54,6 @@ export function LoadingScreen({
       />
       <style>{`@keyframes starterSpin { to { transform: rotate(360deg); } }`}</style>
 
-      <Caption style={{ marginBottom: 6, flexShrink: 0 }}>Building · {company?.name || "Deloitte"}</Caption>
       <Display
         size={26}
         style={{

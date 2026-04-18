@@ -1,14 +1,19 @@
 import { DEFAULT_TWEAKS } from "./defaultTweaks";
-import type { PersistedStateV1, QuizAnswers, ScreenId, Tweaks } from "./types";
+import type { PersistedStateV1, QuizAnswers, ScreenId, Season, Tweaks } from "./types";
+import { SEASONS } from "./types";
 
 export const STORAGE_KEY = "phia-starter-state-v1";
 
 function normalizeQuiz(raw: Record<string, unknown>): QuizAnswers {
   const out: QuizAnswers = {};
   Object.entries(raw).forEach(([k, v]) => {
-    if (v === "a" || v === "b") out[Number(k)] = v;
+    if (v === "a" || v === "b" || v === "c" || v === "d") out[Number(k)] = v;
   });
   return out;
+}
+
+function isSeason(v: unknown): v is Season {
+  return typeof v === "string" && (SEASONS as readonly string[]).includes(v);
 }
 
 function isScreenId(v: unknown): v is ScreenId {
@@ -18,19 +23,23 @@ function isScreenId(v: unknown): v is ScreenId {
     v === "datebudget" ||
     v === "quiz" ||
     v === "loading" ||
-    v === "capsule" ||
     v === "item" ||
     v === "outfits" ||
     v === "summary"
   );
 }
 
+function normalizePersistedScreen(raw: unknown): ScreenId | null {
+  if (raw === "capsule") return "outfits";
+  if (isScreenId(raw)) return raw;
+  return null;
+}
+
 export function createDefaultPersistedState(): PersistedStateV1 {
   return {
     version: 1,
     screen: "home",
-    flow: "A",
-    date: 18,
+    season: "spring",
     quiz: {},
     tweaks: DEFAULT_TWEAKS,
     selectedItemId: null,
@@ -42,6 +51,7 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
   const p = parsed as Partial<PersistedStateV1> & {
     budget?: number;
     companyId?: string;
+    date?: number;
   };
 
   const tweaks: Tweaks = {
@@ -52,11 +62,16 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
   if (typeof p.budget === "number") tweaks.budget = p.budget;
   if (typeof p.companyId === "string") tweaks.company = p.companyId;
 
+  const screen = normalizePersistedScreen(p.screen) ?? initial.screen;
+
   return {
     version: 1,
-    screen: isScreenId(p.screen) ? p.screen : initial.screen,
-    flow: p.flow === "A" || p.flow === "B" ? p.flow : initial.flow,
-    date: typeof p.date === "number" ? p.date : initial.date,
+    screen,
+    season: isSeason(p.season)
+      ? p.season
+      : typeof p.date === "number"
+        ? "spring"
+        : initial.season,
     quiz: normalizeQuiz((p.quiz ?? {}) as Record<string, unknown>),
     tweaks,
     selectedItemId:

@@ -8,7 +8,6 @@ const SCREENS: ScreenId[] = [
   "datebudget",
   "quiz",
   "loading",
-  "capsule",
   "item",
   "outfits",
   "summary",
@@ -17,13 +16,12 @@ const SCREENS: ScreenId[] = [
 const LABELS: Record<ScreenId, string> = {
   home: "1 · Home",
   company: "2 · Company",
-  datebudget: "3 · Date + Budget",
+  datebudget: "3 · Season + Budget",
   quiz: "4 · Vibe",
   loading: "5 · Loading",
-  capsule: "6 · Capsule",
-  item: "7 · Item",
-  outfits: "8 · Outfits",
-  summary: "9 · Summary",
+  item: "6 · Item",
+  outfits: "7 · Outfits",
+  summary: "8 · Summary",
 };
 
 export function NavStrip({

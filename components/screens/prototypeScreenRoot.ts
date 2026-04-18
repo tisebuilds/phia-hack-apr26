@@ -7,6 +7,7 @@ export const prototypeFillColumn: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   overflow: "hidden",
-  background: "#fafaf7",
+  background: "#F5F5F5",
+  color: "#1a1a1a",
   boxSizing: "border-box",
 };

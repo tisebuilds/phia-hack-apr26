@@ -1,48 +1,73 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { Caption } from "@/components/primitives/Caption";
 import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProgressDots } from "@/components/primitives/ProgressDots";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
+import { SEASONS, type Season } from "@/lib/types";
 
-const dayCell: CSSProperties = {
-  height: "clamp(22px, 5.2vmin, 30px)",
-  border: "none",
-  cursor: "pointer",
-  borderRadius: 999,
-  fontFamily: "var(--font-sans), sans-serif",
-  fontSize: "clamp(10px, 2.8vmin, 12px)",
-  fontWeight: 400,
-  padding: 0,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "background 140ms, color 140ms",
+const SEASON_LABEL: Record<Season, string> = {
+  spring: "Spring",
+  summer: "Summer",
+  fall: "Fall",
+  winter: "Winter",
 };
+
+const BUDGET_MIN = 1;
+const BUDGET_MAX = 50_000;
+
+function formatBudgetDraft(n: number): string {
+  return String(n);
+}
+
+function parseBudgetDollars(raw: string): { value: number } | { error: string } {
+  const cleaned = raw.replace(/[$,\s]/g, "");
+  if (!cleaned.trim()) return { error: "Enter a budget amount." };
+  const n = Number.parseFloat(cleaned);
+  if (!Number.isFinite(n)) return { error: "Enter a valid number." };
+  const rounded = Math.round(n);
+  if (rounded < BUDGET_MIN) return { error: `Budget must be at least $${BUDGET_MIN}.` };
+  const value = Math.min(BUDGET_MAX, rounded);
+  return { value };
+}
 
 export function DateBudgetScreen({
   accent,
-  date,
-  setDate,
+  season,
+  setSeason,
   budget,
   setBudget,
   onBack,
   onNext,
 }: {
   accent: string;
-  date: number;
-  setDate: (n: number) => void;
+  season: Season;
+  setSeason: (s: Season) => void;
   budget: number;
   setBudget: (n: number) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
-  const weeks = ["S", "M", "T", "W", "T", "F", "S"];
-  const firstDayOffset = 5;
-  const daysInMonth = 31;
-  const selectedDay = date;
+  const [budgetDraft, setBudgetDraft] = useState(() => formatBudgetDraft(budget));
+  const [budgetError, setBudgetError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBudgetDraft(formatBudgetDraft(budget));
+  }, [budget]);
+
+  const handleContinue = () => {
+    const parsed = parseBudgetDollars(budgetDraft);
+    if ("error" in parsed) {
+      setBudgetError(parsed.error);
+      return;
+    }
+    setBudgetError(null);
+    setBudget(parsed.value);
+    setBudgetDraft(formatBudgetDraft(parsed.value));
+    onNext();
+  };
 
   return (
     <div style={{ ...prototypeFillColumn, padding: "0 14px 10px" }}>
@@ -74,7 +99,6 @@ export function DateBudgetScreen({
         <div style={{ width: 20 }} />
       </div>
 
-      <Caption style={{ marginBottom: 4, flexShrink: 0 }}>Step 2 of 4</Caption>
       <Display
         size={28}
         style={{
@@ -98,8 +122,7 @@ export function DateBudgetScreen({
       >
         <div
           style={{
-            flex: 1.15,
-            minHeight: 0,
+            flexShrink: 0,
             display: "flex",
             flexDirection: "column",
             background: "#fff",
@@ -110,103 +133,44 @@ export function DateBudgetScreen({
             boxSizing: "border-box",
           }}
         >
+          <Caption style={{ marginBottom: 10, flexShrink: 0 }}>Season</Caption>
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: 6,
-              flexShrink: 0,
-            }}
-          >
-            <div style={{ fontFamily: "var(--font-sans), sans-serif", fontSize: 13, fontWeight: 500 }}>May 2026</div>
-            <div style={{ display: "flex", gap: 12, fontSize: 12, color: "rgba(0,0,0,0.3)" }}>
-              <span>‹</span>
-              <span>›</span>
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 2, flexShrink: 0 }}>
-            {weeks.map((w, i) => (
-              <div
-                key={i}
-                style={{
-                  fontFamily: "var(--font-mono), monospace",
-                  fontSize: 8,
-                  color: "rgba(0,0,0,0.4)",
-                  textAlign: "center",
-                  padding: "2px 0",
-                }}
-              >
-                {w}
-              </div>
-            ))}
-          </div>
-          <div
-            style={{
-              flex: 1,
-              minHeight: 0,
               display: "grid",
-              gridTemplateColumns: "repeat(7, 1fr)",
-              gap: 2,
+              gridTemplateColumns: "1fr 1fr",
+              gap: 8,
               alignContent: "start",
             }}
           >
-            {Array.from({ length: firstDayOffset }).map((_, i) => (
-              <div key={`e${i}`} />
-            ))}
-            {Array.from({ length: daysInMonth }).map((_, i) => {
-              const d = i + 1;
-              const isSel = d === selectedDay;
+            {SEASONS.map((s) => {
+              const on = season === s;
               return (
                 <button
+                  key={s}
                   type="button"
-                  key={d}
-                  onClick={() => setDate(d)}
+                  onClick={() => setSeason(s)}
                   style={{
-                    ...dayCell,
-                    background: isSel ? accent : "transparent",
-                    color: isSel ? "#fff" : "#1a1a1a",
-                    fontWeight: isSel ? 600 : 400,
+                    padding: "12px 10px",
+                    borderRadius: 12,
+                    border: on ? `1.5px solid ${accent}` : "1.5px solid rgba(0,0,0,0.12)",
+                    background: on ? accent : "#fff",
+                    fontFamily: "var(--font-sans), sans-serif",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: on ? "#fff" : "#1a1a1a",
+                    cursor: "pointer",
                   }}
                 >
-                  {d}
+                  {SEASON_LABEL[s]}
                 </button>
               );
             })}
           </div>
-          {selectedDay ? (
-            <div
-              style={{
-                marginTop: 6,
-                paddingTop: 8,
-                borderTop: "1px solid rgba(0,0,0,0.05)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 8,
-                flexShrink: 0,
-              }}
-            >
-              <Caption>Start date</Caption>
-              <div
-                style={{
-                  fontFamily: "var(--font-serif), serif",
-                  fontSize: "clamp(12px, 3.2vmin, 15px)",
-                  textAlign: "right",
-                  lineHeight: 1.2,
-                }}
-              >
-                May {selectedDay}, 2026 ·{" "}
-                {["Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu"][(firstDayOffset + selectedDay - 1) % 7]}
-              </div>
-            </div>
-          ) : null}
         </div>
 
         <div
           style={{
-            flex: 1,
-            minHeight: 0,
+            flexShrink: 0,
             display: "flex",
             flexDirection: "column",
             background: "#fff",
@@ -217,78 +181,59 @@ export function DateBudgetScreen({
             boxSizing: "border-box",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              marginBottom: 8,
-              flexShrink: 0,
-            }}
-          >
-            <Caption>Budget</Caption>
+          <Caption style={{ marginBottom: 8, flexShrink: 0 }}>Budget</Caption>
+          <label style={{ flexShrink: 0, display: "block" }}>
+            <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Budget in dollars</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="850"
+              value={budgetDraft}
+              onChange={(e) => {
+                setBudgetDraft(e.target.value);
+                if (budgetError) setBudgetError(null);
+              }}
+              onBlur={() => {
+                const parsed = parseBudgetDollars(budgetDraft);
+                if ("value" in parsed) {
+                  setBudgetDraft(formatBudgetDraft(parsed.value));
+                  setBudget(parsed.value);
+                } else {
+                  setBudgetDraft(formatBudgetDraft(budget));
+                }
+              }}
+              style={{
+                width: "100%",
+                boxSizing: "border-box",
+                padding: "12px 14px",
+                borderRadius: 10,
+                border: `1px solid ${budgetError ? "#c62828" : "rgba(0,0,0,0.12)"}`,
+                fontFamily: "var(--font-serif), serif",
+                fontSize: "clamp(18px, 5vmin, 22px)",
+                color: "#1a1a1a",
+                outline: "none",
+              }}
+            />
+          </label>
+          {budgetError ? (
             <div
               style={{
-                fontFamily: "var(--font-serif), serif",
-                fontSize: "clamp(24px, 7vmin, 32px)",
-                color: accent,
-                letterSpacing: -0.5,
+                marginTop: 6,
+                fontFamily: "var(--font-sans), sans-serif",
+                fontSize: 12,
+                color: "#c62828",
+                flexShrink: 0,
               }}
             >
-              ${budget}
+              {budgetError}
             </div>
-          </div>
-          <input
-            type="range"
-            min={200}
-            max={1500}
-            step={50}
-            value={budget}
-            onChange={(e) => setBudget(+e.target.value)}
-            style={{
-              width: "100%",
-              accentColor: accent,
-              cursor: "pointer",
-              flexShrink: 0,
-            }}
-          />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontFamily: "var(--font-mono), monospace",
-              fontSize: 8,
-              color: "rgba(0,0,0,0.4)",
-              letterSpacing: 0.4,
-              marginTop: 4,
-              flexShrink: 0,
-            }}
-          >
-            <span>$200</span>
-            <span>$1,500</span>
-          </div>
-          <div
-            style={{
-              marginTop: 6,
-              fontFamily: "var(--font-sans), sans-serif",
-              fontSize: "clamp(10px, 2.6vmin, 12px)",
-              color: "rgba(0,0,0,0.5)",
-              lineHeight: 1.4,
-              flex: 1,
-              minHeight: 0,
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            We&apos;ll cap every capsule at this amount. Half from resale, by default.
-          </div>
+          ) : null}
         </div>
       </div>
 
       <div style={{ flexShrink: 0, marginTop: 8 }}>
-        <PrimaryButton accent={accent} onClick={onNext}>
+        <PrimaryButton accent={accent} onClick={handleContinue}>
           Continue
         </PrimaryButton>
       </div>

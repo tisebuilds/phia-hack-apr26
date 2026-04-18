@@ -1,26 +1,83 @@
 "use client";
 
-import { Caption } from "@/components/primitives/Caption";
+import Image from "next/image";
 import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProductSlot } from "@/components/primitives/ProductSlot";
+import { ALL_LABELED_BASES } from "@/lib/itemPhotoPath";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
 import { STARTER_DATA } from "@/lib/data";
 import type { Item } from "@/lib/types";
 
+/** Round-robin pull order so duplicate categories (e.g. several tops) rarely sit side-by-side. */
+const OUTFIT_CATEGORY_ROTATION = [
+  "Outerwear",
+  "Top",
+  "Bottom",
+  "Shoes",
+  "Bag",
+  "Accessory",
+] as const;
+
+/** At most one tile per product id (first occurrence wins). */
+function dedupeOutfitItemIds(ids: number[]): number[] {
+  const seen = new Set<number>();
+  return ids.filter((id) => {
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
+function interleaveOutfitItemIds(ids: number[], resolve: (id: number) => Item | undefined): number[] {
+  const queues = new Map<string, number[]>();
+  for (const id of ids) {
+    const it = resolve(id);
+    if (!it) continue;
+    const list = queues.get(it.category) ?? [];
+    list.push(id);
+    queues.set(it.category, list);
+  }
+  Array.from(queues.values()).forEach((q) => {
+    q.sort((a, b) => a - b);
+  });
+  const known = OUTFIT_CATEGORY_ROTATION.filter((c) => (queues.get(c)?.length ?? 0) > 0);
+  const rotationKeys = OUTFIT_CATEGORY_ROTATION as readonly string[];
+  const extra = Array.from(queues.keys()).filter((c) => !rotationKeys.includes(c));
+  const rotation = [...known, ...extra.filter((c) => (queues.get(c)?.length ?? 0) > 0)];
+  const out: number[] = [];
+  let remaining = ids.reduce((n, id) => (resolve(id) ? n + 1 : n), 0);
+  while (remaining > 0) {
+    for (const c of rotation) {
+      const q = queues.get(c);
+      if (q?.length) {
+        out.push(q.shift()!);
+        remaining -= 1;
+      }
+    }
+  }
+  return out;
+}
+
 export function OutfitMatrixScreen({
   accent,
   items,
+  onItem,
   onBack,
   onSummary,
 }: {
   accent: string;
   items: Item[];
+  onItem: (it: Item) => void;
   onBack: () => void;
   onSummary: () => void;
 }) {
   const getItem = (id: number) => items.find((i) => i.id === id);
   const outfits = STARTER_DATA.outfits;
+
+  const total = items.reduce((s, i) => s + i.price, 0);
+  const retail = items.reduce((s, i) => s + i.retail, 0);
+  const resaleCount = items.filter((i) => i.resale).length;
 
   return (
     <div style={{ ...prototypeFillColumn, padding: 0 }}>
@@ -28,7 +85,6 @@ export function OutfitMatrixScreen({
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
           padding: "6px 16px 8px",
           flexShrink: 0,
         }}
@@ -47,8 +103,6 @@ export function OutfitMatrixScreen({
         >
           ←
         </button>
-        <Caption>Outfits · 20+</Caption>
-        <div style={{ width: 20 }} />
       </div>
 
       <div style={{ padding: "0 16px 10px", flexShrink: 0 }}>
@@ -60,9 +114,7 @@ export function OutfitMatrixScreen({
             lineHeight: 1.05,
           }}
         >
-          Twenty outfits
-          <br />
-          for your <em style={{ fontStyle: "italic" }}>first 90 days.</em>
+          Twenty outfits for <em style={{ fontStyle: "italic" }}>first 90 days</em>.
         </Display>
         <div
           style={{
@@ -70,13 +122,15 @@ export function OutfitMatrixScreen({
             fontSize: "clamp(10px, 2.6vmin, 12px)",
             color: "rgba(0,0,0,0.55)",
             lineHeight: 1.4,
+            marginBottom: 10,
             display: "-webkit-box",
             WebkitLineClamp: 2,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
           }}
         >
-          Every piece earns its place by pairing with at least four others.
+          {resaleCount} resale · {items.length - resaleCount} new. Retail ${retail.toLocaleString()},{" "}
+          <strong>yours for ${total}.</strong>
         </div>
       </div>
 
@@ -125,7 +179,7 @@ export function OutfitMatrixScreen({
           gap: 10,
         }}
       >
-        {outfits.map((o, i) => (
+        {outfits.map((o, outfitIdx) => (
           <div
             key={o.day}
             style={{
@@ -145,19 +199,7 @@ export function OutfitMatrixScreen({
                 gap: 8,
               }}
             >
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontFamily: "var(--font-mono), monospace",
-                    fontSize: 8,
-                    color: "rgba(0,0,0,0.4)",
-                    letterSpacing: 0.4,
-                  }}
-                >
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <div style={{ fontFamily: "var(--font-serif), serif", fontSize: 16 }}>{o.day}</div>
-              </div>
+              <div style={{ fontFamily: "var(--font-serif), serif", fontSize: 16, minWidth: 0 }}>{o.day}</div>
               <div
                 style={{
                   fontFamily: "var(--font-sans), sans-serif",
@@ -170,19 +212,87 @@ export function OutfitMatrixScreen({
                 {o.note}
               </div>
             </div>
-            <div style={{ display: "flex", gap: 5 }}>
-              {o.items.map((id) => {
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+              {interleaveOutfitItemIds(dedupeOutfitItemIds(o.items), getItem).map((id, idx, arr) => {
                 const it = getItem(id);
                 if (!it) return null;
+                const prev = idx > 0 ? getItem(arr[idx - 1]!) : undefined;
+                const forceRowBreak =
+                  (it.category === "Top" && prev?.category === "Top") ||
+                  (it.category === "Bag" && prev?.category === "Bag");
                 return (
-                  <div key={id} style={{ flex: 1, minWidth: 0 }}>
-                    <ProductSlot item={it} compact showBadge={false} />
-                  </div>
+                  <span key={id} style={{ display: "contents" }}>
+                    {forceRowBreak ? (
+                      <span
+                        aria-hidden
+                        style={{
+                          flexBasis: "100%",
+                          width: 0,
+                          height: 0,
+                          overflow: "hidden",
+                        }}
+                      />
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => onItem(it)}
+                      style={{
+                        flex: "1 1 0",
+                        minWidth: 0,
+                        background: "none",
+                        border: "none",
+                        padding: 0,
+                        cursor: "pointer",
+                        textAlign: "left",
+                      }}
+                    >
+                      <ProductSlot
+                        item={it}
+                        compact
+                        showBadge={false}
+                        labeledVariantSalt={outfitIdx * 83 + idx * 17 + it.id}
+                      />
+                    </button>
+                  </span>
                 );
               })}
             </div>
           </div>
         ))}
+
+        <div
+          style={{
+            display: "flex",
+            gap: 4,
+            overflowX: "auto",
+            paddingBottom: 4,
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {ALL_LABELED_BASES.map((base) => (
+            <div
+              key={base}
+              style={{
+                position: "relative",
+                flexShrink: 0,
+                width: 44,
+                aspectRatio: "3/4",
+                borderRadius: 5,
+                overflow: "hidden",
+                background: "rgba(0,0,0,0.04)",
+              }}
+            >
+              <Image
+                src={`/products/labeled/${base}.jpg`}
+                alt=""
+                fill
+                sizes="44px"
+                style={{ objectFit: "cover" }}
+                unoptimized
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       <div style={{ padding: "8px 16px 10px", flexShrink: 0 }}>
