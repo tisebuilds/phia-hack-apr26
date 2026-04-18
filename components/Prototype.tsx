@@ -12,11 +12,11 @@ import { LoadingScreen } from "@/components/screens/LoadingScreen";
 import { QuizScreen } from "@/components/screens/QuizScreen";
 import { SummaryScreen } from "@/components/screens/SummaryScreen";
 import { deriveCapsule } from "@/lib/capsule";
-import { STARTER_DATA } from "@/lib/data";
 import { createDefaultPersistedState, mergePersistedState, STORAGE_KEY } from "@/lib/persistedDefaults";
+import { coerceCompanyIdForMode, fillBudgetBlurbTemplate, getStarterPack } from "@/lib/packs";
 import { PITCH_NOTES } from "@/lib/pitchNotes";
 import { usePersistedState } from "@/lib/usePersistedState";
-import type { Company, PersistedStateV1, ScreenId, Season, Tweaks } from "@/lib/types";
+import type { Company, PersistedStateV1, ScreenId, Season, StarterMode, Tweaks } from "@/lib/types";
 
 export function Prototype() {
   const searchParams = useSearchParams();
@@ -30,13 +30,22 @@ export function Prototype() {
     merge: mergePersistedState,
   });
 
+  const pack = useMemo(() => getStarterPack(snap.starterMode), [snap.starterMode]);
+
   const company = useMemo(() => {
-    return STARTER_DATA.companies.find((c) => c.id === snap.tweaks.company) ?? STARTER_DATA.companies[0];
-  }, [snap.tweaks.company]);
+    return pack.companies.find((c) => c.id === snap.tweaks.company) ?? pack.companies[0]!;
+  }, [pack.companies, snap.tweaks.company]);
 
   const items = useMemo(
-    () => deriveCapsule(STARTER_DATA.items, snap.tweaks.budget, snap.tweaks.resaleMix, snap.tweaks.vibe),
-    [snap.tweaks.budget, snap.tweaks.resaleMix, snap.tweaks.vibe],
+    () => deriveCapsule(pack.items, snap.tweaks.budget, snap.tweaks.resaleMix, snap.tweaks.vibe),
+    [pack.items, snap.tweaks.budget, snap.tweaks.resaleMix, snap.tweaks.vibe],
+  );
+
+  const loadingLines = useMemo(() => pack.loadingLines(company), [pack, company]);
+
+  const summaryBudgetBlurb = useMemo(
+    () => fillBudgetBlurbTemplate(pack.summaryBudgetBlurb, snap.tweaks.budget),
+    [pack.summaryBudgetBlurb, snap.tweaks.budget],
   );
 
   const resolvedItem = useMemo(() => {
@@ -98,8 +107,20 @@ export function Prototype() {
   }, [setSnap]);
 
   const labContextLine = useMemo(
-    () => `Sarah · ${company?.name} · $${snap.tweaks.budget}`,
-    [company?.name, snap.tweaks.budget],
+    () => `${pack.label} · ${company.name} · $${snap.tweaks.budget}`,
+    [pack.label, company.name, snap.tweaks.budget],
+  );
+
+  const setStarterMode = useCallback(
+    (mode: StarterMode) => {
+      setSnap((prev) => ({
+        ...prev,
+        starterMode: mode,
+        tweaks: { ...prev.tweaks, company: coerceCompanyIdForMode(mode, prev.tweaks.company) },
+        quiz: {},
+      }));
+    },
+    [setSnap],
   );
 
   const goFromLab = useCallback(
@@ -118,7 +139,7 @@ export function Prototype() {
     switch (snap.screen) {
       case "home":
         return (
-          <HomeScreen accent={accent} onOpen={() => go("company")} />
+          <HomeScreen accent={accent} homeHero={pack.homeHero} onOpen={() => go("company")} />
         );
       case "company":
         return (
@@ -126,6 +147,11 @@ export function Prototype() {
             accent={accent}
             value={company}
             setValue={setCompanyFromPicker}
+            companies={pack.companies}
+            contextOptions={pack.contextOptions}
+            contextStepTitle={pack.contextStepTitle}
+            contextDetailTitle={pack.contextDetailTitle}
+            contextSourceLine={pack.contextSourceLine}
             onBack={() => go("home")}
             onNext={() => go("datebudget")}
           />
@@ -138,6 +164,8 @@ export function Prototype() {
             setSeason={(s: Season) => setSnap((p) => ({ ...p, season: s }))}
             budget={snap.tweaks.budget}
             setBudget={setBudget}
+            seasonCaption={pack.seasonCaption}
+            dateBudgetHeadline={pack.dateBudgetHeadline}
             onBack={() => go("company")}
             onNext={() => go("quiz")}
           />
@@ -146,6 +174,7 @@ export function Prototype() {
         return (
           <QuizScreen
             accent={accent}
+            quiz={pack.quiz}
             answers={snap.quiz}
             setAnswers={(quizNext) => setSnap((p) => ({ ...p, quiz: quizNext }))}
             onBack={() => go("datebudget")}
@@ -153,7 +182,7 @@ export function Prototype() {
           />
         );
       case "loading":
-        return <LoadingScreen accent={accent} company={company} onDone={onLoadingDone} />;
+        return <LoadingScreen accent={accent} lines={loadingLines} onDone={onLoadingDone} />;
       case "item":
         return (
           <ItemDetailScreen
@@ -169,8 +198,11 @@ export function Prototype() {
           <SummaryScreen
             accent={accent}
             items={items}
-            company={company}
-            budget={snap.tweaks.budget}
+            outfits={pack.outfits}
+            summaryTitleBefore={pack.summaryTitleBefore}
+            summaryTitleItalic={pack.summaryTitleItalic}
+            summaryTitleAfter={pack.summaryTitleAfter}
+            summaryBudgetBlurb={summaryBudgetBlurb}
             onBack={() => go("quiz")}
             onItem={(it) => {
               setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
@@ -310,12 +342,16 @@ export function Prototype() {
         </div>
       ) : null}
 
-      {showTweaks ? <TweaksPanel tweaks={snap.tweaks} onChange={setTweaks} /> : null}
+      {showTweaks ? (
+        <TweaksPanel starterMode={snap.starterMode} tweaks={snap.tweaks} onChange={setTweaks} />
+      ) : null}
 
       <LabSheet
         open={labOpen}
         onClose={() => setLabOpen(false)}
         contextLine={labContextLine}
+        starterMode={snap.starterMode}
+        onStarterModeChange={setStarterMode}
         showDevNav={showDevNav}
         screen={snap.screen}
         onGoScreen={goFromLab}

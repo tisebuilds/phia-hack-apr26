@@ -2,12 +2,15 @@
 
 import { useEffect } from "react";
 import { NavStrip } from "@/components/NavStrip";
-import type { ScreenId } from "@/lib/types";
+import { STARTER_PACK_LIST } from "@/lib/packs";
+import type { ScreenId, StarterMode } from "@/lib/types";
 
 export function LabSheet({
   open,
   onClose,
   contextLine,
+  starterMode,
+  onStarterModeChange,
   showDevNav,
   screen,
   onGoScreen,
@@ -16,6 +19,8 @@ export function LabSheet({
   open: boolean;
   onClose: () => void;
   contextLine: string;
+  starterMode: StarterMode;
+  onStarterModeChange: (mode: StarterMode) => void;
   showDevNav: boolean;
   screen: ScreenId;
   onGoScreen: (s: ScreenId) => void;
@@ -155,6 +160,54 @@ export function LabSheet({
           >
             Done
           </button>
+        </div>
+
+        <div
+          style={{
+            fontFamily: "var(--font-sans), sans-serif",
+            fontSize: 10,
+            letterSpacing: 2,
+            textTransform: "uppercase",
+            fontWeight: 600,
+            color: "rgba(255,255,255,0.38)",
+            marginBottom: 8,
+            flexShrink: 0,
+          }}
+        >
+          Starter context
+        </div>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            marginBottom: 16,
+            flexShrink: 0,
+          }}
+        >
+          {STARTER_PACK_LIST.map((p) => {
+            const on = starterMode === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => onStarterModeChange(p.id)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 999,
+                  border: on ? "1.5px solid rgba(255,255,255,0.55)" : "1px solid rgba(255,255,255,0.14)",
+                  background: on ? "rgba(255,255,255,0.14)" : "rgba(255,255,255,0.06)",
+                  fontFamily: "var(--font-sans), sans-serif",
+                  fontSize: 12,
+                  fontWeight: on ? 600 : 500,
+                  color: on ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.72)",
+                  cursor: "pointer",
+                }}
+              >
+                {p.label}
+              </button>
+            );
+          })}
         </div>
 
         <button

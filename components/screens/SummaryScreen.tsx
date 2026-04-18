@@ -6,23 +6,28 @@ import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProductSlot } from "@/components/primitives/ProductSlot";
 import { StarterMark } from "@/components/primitives/StarterMark";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
-import { STARTER_DATA } from "@/lib/data";
 import { dedupeOutfitItemIds, interleaveOutfitItemIds } from "@/lib/outfitLayout";
-import type { Company, Item } from "@/lib/types";
+import type { Item, Outfit } from "@/lib/types";
 
 export function SummaryScreen({
   accent,
   items,
-  company,
-  budget,
+  outfits,
+  summaryTitleBefore,
+  summaryTitleItalic,
+  summaryTitleAfter,
+  summaryBudgetBlurb,
   onBack,
   onItem,
   onStartShopping,
 }: {
   accent: string;
   items: Item[];
-  company: Company;
-  budget: number;
+  outfits: Outfit[];
+  summaryTitleBefore: string;
+  summaryTitleItalic: string;
+  summaryTitleAfter: string;
+  summaryBudgetBlurb: string;
   onBack: () => void;
   onItem?: (it: Item) => void;
   onStartShopping?: () => void;
@@ -82,7 +87,9 @@ export function SummaryScreen({
             lineHeight: 1.05,
           }}
         >
-          Your <em style={{ fontStyle: "italic" }}>first 90 days</em>, handled.
+          {summaryTitleBefore}
+          <em style={{ fontStyle: "italic" }}>{summaryTitleItalic}</em>
+          {summaryTitleAfter}
         </Display>
         <div
           style={{
@@ -93,7 +100,7 @@ export function SummaryScreen({
             marginBottom: 14,
           }}
         >
-          Twenty outfits built to your ${budget} budget. Every piece pairs with every other piece.
+          {summaryBudgetBlurb}
         </div>
 
         <div
@@ -238,7 +245,7 @@ export function SummaryScreen({
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {STARTER_DATA.outfits.map((o, outfitIdx) => (
+          {outfits.map((o, outfitIdx) => (
             <div
               key={`${o.day}-${o.note}`}
               style={{

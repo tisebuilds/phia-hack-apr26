@@ -3,22 +3,16 @@
 import { useEffect, useState } from "react";
 import { Display } from "@/components/primitives/Display";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
-import type { Company } from "@/lib/types";
 
 export function LoadingScreen({
   accent,
-  company,
+  lines,
   onDone,
 }: {
   accent: string;
-  company: Company;
+  lines: readonly [string, string, string];
   onDone: () => void;
 }) {
-  const lines = [
-    `Reading ${company?.name || "Deloitte"}'s dress code`,
-    "Finding the best resale matches",
-    "Building your capsule",
-  ];
   const [i, setI] = useState(0);
 
   useEffect(() => {
@@ -30,7 +24,7 @@ export function LoadingScreen({
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [company?.name, onDone]);
+  }, [lines, onDone]);
 
   return (
     <div

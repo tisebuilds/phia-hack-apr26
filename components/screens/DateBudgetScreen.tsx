@@ -39,6 +39,8 @@ export function DateBudgetScreen({
   setSeason,
   budget,
   setBudget,
+  seasonCaption,
+  dateBudgetHeadline,
   onBack,
   onNext,
 }: {
@@ -47,6 +49,10 @@ export function DateBudgetScreen({
   setSeason: (s: Season) => void;
   budget: number;
   setBudget: (n: number) => void;
+  seasonCaption: string;
+  dateBudgetHeadline:
+    | { type: "split"; before: string; italic: string; after: string }
+    | { type: "plain"; text: string };
   onBack: () => void;
   onNext: () => void;
 }) {
@@ -108,7 +114,15 @@ export function DateBudgetScreen({
           lineHeight: 1.05,
         }}
       >
-        When <em style={{ fontStyle: "italic" }}>and</em> how much?
+        {dateBudgetHeadline.type === "split" ? (
+          <>
+            {dateBudgetHeadline.before}
+            <em style={{ fontStyle: "italic" }}>{dateBudgetHeadline.italic}</em>
+            {dateBudgetHeadline.after}
+          </>
+        ) : (
+          dateBudgetHeadline.text
+        )}
       </Display>
 
       <div
@@ -133,7 +147,7 @@ export function DateBudgetScreen({
             boxSizing: "border-box",
           }}
         >
-          <Caption style={{ marginBottom: 10, flexShrink: 0 }}>Season</Caption>
+          <Caption style={{ marginBottom: 10, flexShrink: 0 }}>{seasonCaption}</Caption>
           <div
             style={{
               display: "grid",

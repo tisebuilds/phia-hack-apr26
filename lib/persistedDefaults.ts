@@ -1,5 +1,6 @@
 import { DEFAULT_TWEAKS } from "./defaultTweaks";
-import type { PersistedStateV1, QuizAnswers, ScreenId, Season, Tweaks } from "./types";
+import { coerceCompanyIdForMode, isStarterMode } from "./packs";
+import type { PersistedStateV1, QuizAnswers, ScreenId, Season, StarterMode, Tweaks } from "./types";
 import { SEASONS } from "./types";
 
 export const STORAGE_KEY = "phia-starter-state-v1";
@@ -37,6 +38,7 @@ function normalizePersistedScreen(raw: unknown): ScreenId | null {
 export function createDefaultPersistedState(): PersistedStateV1 {
   return {
     version: 1,
+    starterMode: "work",
     screen: "home",
     season: "spring",
     quiz: {},
@@ -53,6 +55,8 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
     date?: number;
   };
 
+  const starterMode: StarterMode = isStarterMode(p.starterMode) ? p.starterMode : initial.starterMode;
+
   const tweaks: Tweaks = {
     ...DEFAULT_TWEAKS,
     ...(p.tweaks ?? {}),
@@ -61,10 +65,13 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
   if (typeof p.budget === "number") tweaks.budget = p.budget;
   if (typeof p.companyId === "string") tweaks.company = p.companyId;
 
+  tweaks.company = coerceCompanyIdForMode(starterMode, tweaks.company);
+
   const screen = normalizePersistedScreen(p.screen) ?? initial.screen;
 
   return {
     version: 1,
+    starterMode,
     screen,
     season: isSeason(p.season)
       ? p.season

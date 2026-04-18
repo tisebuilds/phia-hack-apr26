@@ -5,26 +5,27 @@ import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProgressDots } from "@/components/primitives/ProgressDots";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
-import { STARTER_DATA } from "@/lib/data";
-import type { QuizAnswers } from "@/lib/types";
+import type { QuizAnswers, QuizCard } from "@/lib/types";
 
 const QUIZ_SIDES = ["a", "b", "c", "d"] as const;
 type QuizSide = (typeof QUIZ_SIDES)[number];
 
 export function QuizScreen({
   accent,
+  quiz,
   answers,
   setAnswers,
   onBack,
   onNext,
 }: {
   accent: string;
+  quiz: QuizCard[];
   answers: QuizAnswers;
   setAnswers: (a: QuizAnswers) => void;
   onBack: () => void;
   onNext: () => void;
 }) {
-  const Q = STARTER_DATA.quiz;
+  const Q = quiz;
   const done = Object.keys(answers).length === Q.length;
   const [qi, setQi] = useState(0);
   const q = Q[qi];

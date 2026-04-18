@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Caption } from "@/components/primitives/Caption";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
+import type { StarterHomeHero } from "@/lib/packs";
 
 const iconStroke = 1.5 as const;
 
@@ -34,11 +35,13 @@ const topIconBtn = {
 
 export function HomeScreen({
   accent,
+  homeHero,
   onOpen,
   onNotifications,
   onClose,
 }: {
   accent: string;
+  homeHero: StarterHomeHero;
   onOpen: () => void;
   onNotifications?: () => void;
   onClose?: () => void;
@@ -157,7 +160,7 @@ export function HomeScreen({
                   letterSpacing: 0.55,
                 }}
               >
-                2 mins
+                {homeHero.badge}
               </Caption>
             </div>
 
@@ -181,7 +184,7 @@ export function HomeScreen({
                   marginBottom: "clamp(4px, 1svh, 10px)",
                 }}
               >
-                Stop guessing what to wear to work.
+                {homeHero.headline}
               </div>
 
               <div
@@ -196,7 +199,7 @@ export function HomeScreen({
                   overflow: "hidden",
                 }}
               >
-                A starter wardrobe that fits your actual job — built around your workplace, budget, and style.
+                {homeHero.body}
               </div>
             </div>
 
@@ -221,7 +224,7 @@ export function HomeScreen({
                   flexShrink: 0,
                 }}
               >
-                Build my capsule
+                {homeHero.cta}
                 <ArrowRight size={14} strokeWidth={iconStroke} aria-hidden style={{ flexShrink: 0 }} />
               </div>
             </div>

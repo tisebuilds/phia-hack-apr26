@@ -3,16 +3,19 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Caption } from "@/components/primitives/Caption";
 import { ACCENTS } from "@/lib/accents";
-import { STARTER_DATA } from "@/lib/data";
-import type { Tweaks } from "@/lib/types";
+import { getStarterPack } from "@/lib/packs";
+import type { StarterMode, Tweaks } from "@/lib/types";
 
 export function TweaksPanel({
+  starterMode = "work",
   tweaks,
   onChange,
 }: {
+  starterMode?: StarterMode;
   tweaks: Tweaks;
   onChange: (next: Tweaks) => void;
 }) {
+  const pack = getStarterPack(starterMode);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -76,7 +79,7 @@ export function TweaksPanel({
 
       <Caption style={{ marginBottom: 6 }}>Vibe</Caption>
       <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-        {STARTER_DATA.vibes.map((v) => (
+        {pack.vibes.map((v) => (
           <button
             type="button"
             key={v.id}
@@ -112,7 +115,7 @@ export function TweaksPanel({
           fontFamily: "inherit",
         }}
       >
-        {STARTER_DATA.companies.map((c) => (
+        {pack.companies.map((c) => (
           <option key={c.id} value={c.id}>
             {c.name}
           </option>

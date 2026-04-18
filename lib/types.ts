@@ -77,8 +77,12 @@ export type QuizAnswers = Record<number, "a" | "b" | "c" | "d">;
 export const SEASONS = ["spring", "summer", "fall", "winter"] as const;
 export type Season = (typeof SEASONS)[number];
 
+export const STARTER_MODES = ["work", "concert", "campus", "halloween", "workParty"] as const;
+export type StarterMode = (typeof STARTER_MODES)[number];
+
 export type PersistedStateV1 = {
   version: 1;
+  starterMode: StarterMode;
   screen: ScreenId;
   season: Season;
   quiz: QuizAnswers;

@@ -5,37 +5,35 @@ import { Display } from "@/components/primitives/Display";
 import { PrimaryButton } from "@/components/primitives/PrimaryButton";
 import { ProgressDots } from "@/components/primitives/ProgressDots";
 import { prototypeFillColumn } from "@/components/screens/prototypeScreenRoot";
-import { STARTER_DATA } from "@/lib/data";
 import type { Company } from "@/lib/types";
-
-const INDUSTRY_OPTIONS: { id: string; label: string; companyId: string }[] = [
-  { id: "banking_finance", label: "Banking & finance", companyId: "goldman" },
-  { id: "consulting", label: "Consulting", companyId: "mckinsey" },
-  { id: "law", label: "Law", companyId: "law" },
-  { id: "healthcare", label: "Healthcare", companyId: "healthcare" },
-  { id: "tech", label: "Tech", companyId: "google" },
-  { id: "marketing_pr", label: "Marketing & PR", companyId: "marketing_pr" },
-  { id: "media", label: "Media & journalism", companyId: "media" },
-  { id: "nonprofit_gov", label: "Nonprofit & government", companyId: "nonprofit_gov" },
-  { id: "education", label: "Education", companyId: "education" },
-  { id: "startups_creative", label: "Startups & creative", companyId: "startups_creative" },
-];
+import type { ContextOption } from "@/lib/packs";
 
 export function CompanyScreen({
   accent,
   value,
   setValue,
+  companies,
+  contextOptions,
+  contextStepTitle,
+  contextDetailTitle,
+  contextSourceLine,
   onBack,
   onNext,
 }: {
   accent: string;
   value: Company;
   setValue: (c: Company) => void;
+  companies: Company[];
+  contextOptions: ContextOption[];
+  contextStepTitle: string;
+  contextDetailTitle: string;
+  contextSourceLine: (c: Company) => string;
   onBack: () => void;
   onNext: () => void;
 }) {
   const [selected, setSelected] = useState<Company | null>(value || null);
-  const D = STARTER_DATA.companies;
+
+  const resolveCompany = (companyId: string) => companies.find((c) => c.id === companyId);
 
   const pick = (c: Company) => {
     setSelected(c);
@@ -46,8 +44,9 @@ export function CompanyScreen({
     setSelected(value);
   }, [value]);
 
-  const activeIndustryId =
-    selected && INDUSTRY_OPTIONS.find((o) => o.companyId === selected.id)?.id;
+  const activeOptionId = selected
+    ? contextOptions.find((o) => o.companyId === selected.id)?.id
+    : undefined;
 
   return (
     <div style={{ ...prototypeFillColumn, padding: "0 14px 10px" }}>
@@ -88,7 +87,7 @@ export function CompanyScreen({
           lineHeight: 1.05,
         }}
       >
-        What industry are you in?
+        {contextStepTitle}
       </Display>
 
       <div
@@ -108,10 +107,10 @@ export function CompanyScreen({
             marginBottom: 12,
           }}
         >
-          {INDUSTRY_OPTIONS.map((opt) => {
-            const company = D.find((c) => c.id === opt.companyId);
+          {contextOptions.map((opt) => {
+            const company = resolveCompany(opt.companyId);
             if (!company) return null;
-            const on = activeIndustryId === opt.id;
+            const on = activeOptionId === opt.id;
             return (
               <button
                 key={opt.id}
@@ -169,7 +168,7 @@ export function CompanyScreen({
               lineHeight: 1.25,
             }}
           >
-            What we know about the dress code
+            {contextDetailTitle}
           </div>
           <div
             style={{
@@ -191,7 +190,7 @@ export function CompanyScreen({
               lineHeight: 1.35,
             }}
           >
-            Sourced from {selected.sourceEmployeeCount.toLocaleString("en-US")} current employees · updated weekly
+            {contextSourceLine(selected)}
           </div>
         </div>
       )}
