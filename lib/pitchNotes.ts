@@ -7,6 +7,5 @@ export const PITCH_NOTES: Record<ScreenId, string> = {
   quiz: "Three four-option vibe cards; all required to continue.",
   loading: "Three timed lines; company name in copy.",
   item: "Retail vs found price; savings ribbon on resale.",
-  outfits: "Outfit rows; social proof stat banner; tap a piece for detail.",
-  summary: "Big number recap; save + restart.",
+  summary: "Value recap + returns proof; three outfit rows; Start shopping vs Save capsule.",
 };

@@ -9,7 +9,6 @@ import { DateBudgetScreen } from "@/components/screens/DateBudgetScreen";
 import { HomeScreen } from "@/components/screens/HomeScreen";
 import { ItemDetailScreen } from "@/components/screens/ItemDetailScreen";
 import { LoadingScreen } from "@/components/screens/LoadingScreen";
-import { OutfitMatrixScreen } from "@/components/screens/OutfitMatrixScreen";
 import { QuizScreen } from "@/components/screens/QuizScreen";
 import { SummaryScreen } from "@/components/screens/SummaryScreen";
 import { deriveCapsule } from "@/lib/capsule";
@@ -95,7 +94,7 @@ export function Prototype() {
   );
 
   const onLoadingDone = useCallback(() => {
-    setSnap((prev) => ({ ...prev, screen: "outfits" }));
+    setSnap((prev) => ({ ...prev, screen: "summary" }));
   }, [setSnap]);
 
   const labContextLine = useMemo(
@@ -162,19 +161,7 @@ export function Prototype() {
             item={resolvedItem}
             itemIndex={itemDetailIndex}
             similarItems={similarItems}
-            onBack={() => go("outfits")}
-          />
-        );
-      case "outfits":
-        return (
-          <OutfitMatrixScreen
-            accent={accent}
-            items={items}
-            onItem={(it) => {
-              setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
-            }}
-            onBack={() => go("quiz")}
-            onSummary={() => go("summary")}
+            onBack={() => go("summary")}
           />
         );
       case "summary":
@@ -184,7 +171,10 @@ export function Prototype() {
             items={items}
             company={company}
             budget={snap.tweaks.budget}
-            onBack={() => go("outfits")}
+            onBack={() => go("quiz")}
+            onItem={(it) => {
+              setSnap((p) => ({ ...p, selectedItemId: it.id, screen: "item" }));
+            }}
           />
         );
       default:

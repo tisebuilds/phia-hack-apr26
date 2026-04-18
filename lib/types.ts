@@ -70,7 +70,6 @@ export type ScreenId =
   | "quiz"
   | "loading"
   | "item"
-  | "outfits"
   | "summary";
 
 export type QuizAnswers = Record<number, "a" | "b" | "c" | "d">;

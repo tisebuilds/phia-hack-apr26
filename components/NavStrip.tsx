@@ -9,7 +9,6 @@ const SCREENS: ScreenId[] = [
   "quiz",
   "loading",
   "item",
-  "outfits",
   "summary",
 ];
 
@@ -20,8 +19,7 @@ const LABELS: Record<ScreenId, string> = {
   quiz: "4 · Vibe",
   loading: "5 · Loading",
   item: "6 · Item",
-  outfits: "7 · Outfits",
-  summary: "8 · Summary",
+  summary: "7 · Capsule summary",
 };
 
 export function NavStrip({

@@ -24,13 +24,12 @@ function isScreenId(v: unknown): v is ScreenId {
     v === "quiz" ||
     v === "loading" ||
     v === "item" ||
-    v === "outfits" ||
     v === "summary"
   );
 }
 
 function normalizePersistedScreen(raw: unknown): ScreenId | null {
-  if (raw === "capsule") return "outfits";
+  if (raw === "capsule" || raw === "outfits") return "summary";
   if (isScreenId(raw)) return raw;
   return null;
 }
