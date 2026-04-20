@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """
 Dedupe Cursor asset PNGs (same stem, __N_- / - uuid suffixes), keep largest per stem,
-export JPEGs under public/products/labeled/{category}-{slug}.jpg
-and refresh public/products/{id}.jpg for catalog items (see ITEM_EXPORT).
+export JPEGs to match `lib/itemPhotoPath.ts`:
+  - bag / shoes / boots → public/products/labeled/{category}-{slug}.jpg
+  - everything else → public/Phia clothing/{category}-{slug}.jpg
+
 Run from repo root: python3 scripts/sync-product-photos.py
 """
 from __future__ import annotations
@@ -14,8 +16,9 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 ASSETS = Path.home() / ".cursor/projects/Users-tisealatise-Documents-Github-projects-phia-hack-apr26/assets"
-DEST_LABELED = REPO / "public/products/labeled"
-DEST_FLAT = REPO / "public/products"
+DEST_PHIA_CLOTHING = REPO / "public" / "Phia clothing"
+DEST_LEGACY_LABELED = REPO / "public" / "products" / "labeled"
+LEGACY_CATEGORIES = frozenset({"bag", "boots", "shoes"})
 
 END = re.compile(
     r"(__\d_-)?(--)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.png$",
@@ -110,7 +113,7 @@ LABELED: list[tuple[str, str, str]] = [
     ("_x_FdWhv1WqWs.agKBQCMJMyKjuM2w6pMqzH_pKMGZJj.IZmfvVviJqLL9Djf.jHwYgvqPP5P0Nl", "top", "sweater-turtleneck-charcoal"),
 ]
 
-# item id -> labeled basename (no path, no ext) under /products/labeled/
+# item id -> basename (no path, no ext); resolved under labeled/ or Phia clothing/ per category.
 # Keep in sync with `ITEM_LABELED` in `lib/itemPhotoPath.ts`.
 ITEM_EXPORT: dict[int, str] = {
     1: "shoes-mule-sarto-beige",
@@ -144,8 +147,11 @@ def resolve_winners() -> dict[str, Path]:
 
 def main() -> None:
     winners = resolve_winners()
-    DEST_LABELED.mkdir(parents=True, exist_ok=True)
-    for stale in DEST_LABELED.glob("*.jpg"):
+    DEST_PHIA_CLOTHING.mkdir(parents=True, exist_ok=True)
+    DEST_LEGACY_LABELED.mkdir(parents=True, exist_ok=True)
+    for stale in DEST_PHIA_CLOTHING.glob("*.jpg"):
+        stale.unlink()
+    for stale in DEST_LEGACY_LABELED.glob("*.jpg"):
         stale.unlink()
 
     written: set[str] = set()
@@ -156,26 +162,18 @@ def main() -> None:
             continue
         src = winners[match]
         name = f"{category}-{slug}.jpg"
-        dest = DEST_LABELED / name
+        dest_root = DEST_LEGACY_LABELED if category in LEGACY_CATEGORIES else DEST_PHIA_CLOTHING
+        dest = dest_root / name
         to_jpeg(src, dest)
         written.add(name)
-        print(f"ok {name} <- {src.name[:48]}…")
+        print(f"ok {dest_root.name}/{name} <- {src.name[:48]}…")
 
-    # flat copies for app default paths
     for item_id, base in ITEM_EXPORT.items():
         name = f"{base}.jpg"
         if name not in written:
             raise SystemExit(f"ITEM_EXPORT {item_id} -> {name} was not produced")
-        shutil.copy2(DEST_LABELED / name, DEST_FLAT / f"{item_id}.jpg")
 
-    # remove stray old jpgs not in 1..12
-    for p in DEST_FLAT.glob("*.jpg"):
-        if p.name.removesuffix(".jpg").isdigit():
-            continue
-        p.unlink()
-        print("removed", p)
-
-    print("done labeled:", len(written), "flat:", len(ITEM_EXPORT))
+    print("done jpgs:", len(written), "catalog heroes verified:", len(ITEM_EXPORT))
 
 
 if __name__ == "__main__":

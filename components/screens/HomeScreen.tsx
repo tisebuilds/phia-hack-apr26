@@ -333,7 +333,7 @@ export function HomeScreen({
                   margin: "0 0 14px",
                 }}
               >
-                Pick what you&apos;re prepping for—we&apos;ll show the right capsule card next.
+                Pick an occasion. We&apos;ll build your looks.
               </p>
               <div
                 style={{
@@ -351,7 +351,7 @@ export function HomeScreen({
                       textAlign: "left",
                       padding: "10px 12px 12px",
                       borderRadius: 12,
-                      border: "1px solid rgba(0,0,0,0.06)",
+                      border: "1px solid rgba(0,0,0,0.14)",
                       background: "#fff",
                       cursor: "pointer",
                       minHeight: "clamp(72px, 16svh, 92px)",
@@ -359,19 +359,8 @@ export function HomeScreen({
                       flexDirection: "column",
                       justifyContent: "flex-start",
                       gap: 4,
-                      boxShadow: "0 1px 0 rgba(0,0,0,0.04)",
                     }}
                   >
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: 999,
-                        background: accent,
-                        flexShrink: 0,
-                      }}
-                      aria-hidden
-                    />
                     <span
                       style={{
                         fontFamily: "var(--font-sans), sans-serif",

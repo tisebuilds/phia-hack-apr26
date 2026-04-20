@@ -77,11 +77,12 @@ export type QuizAnswers = Record<number, "a" | "b" | "c" | "d">;
 export const SEASONS = ["spring", "summer", "fall", "winter"] as const;
 export type Season = (typeof SEASONS)[number];
 
-export const STARTER_MODES = ["work", "concert", "campus", "halloween", "workParty"] as const;
+export const STARTER_MODES = ["work", "concert", "campus", "halloween", "workParty", "platform"] as const;
 export type StarterMode = (typeof STARTER_MODES)[number];
 
 export type PersistedStateV1 = {
-  version: 1;
+  /** v2: demo default shows pack hero unless `starterMode === "platform"`; migrates legacy v1 saves. */
+  version: 1 | 2;
   starterMode: StarterMode;
   /** User picked what they're prepping for on home; unlocks hero + flow. */
   homeMilestoneChosen: boolean;

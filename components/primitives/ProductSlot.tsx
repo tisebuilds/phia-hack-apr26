@@ -29,7 +29,7 @@ export function ProductSlot({
   const src =
     labeledVariantSalt != null
       ? productImageSrcVariant(item, labeledVariantSalt)
-      : productImageSrc(item.id);
+      : productImageSrc(item);
   const showImage = !imgFailed;
 
   useEffect(() => {

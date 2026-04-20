@@ -211,7 +211,7 @@ export function ItemDetailScreen({
                 <path d="M4 18V6M8 18V10M12 18v-8M16 18V8M20 18V4" strokeLinecap="round" />
               </svg>
               <span style={{ fontFamily: sans, fontSize: 13, color: "#1a1a1a", textAlign: "left" }}>
-                This price is <span style={{ color: orange, fontWeight: 600 }}>typical</span>
+                <span style={{ color: orange, fontWeight: 600 }}>Fair price</span>
               </span>
             </div>
             <svg
@@ -247,7 +247,7 @@ export function ItemDetailScreen({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  ${item.retail} is typical
+                  ${item.retail} is a fair price for this piece.
                 </div>
                 <div
                   style={{
@@ -276,7 +276,7 @@ export function ItemDetailScreen({
                 <span>${high}</span>
               </div>
               <p style={{ fontFamily: sans, fontSize: 12, color: "rgba(0,0,0,0.55)", lineHeight: 1.45, margin: "10px 0 0" }}>
-                Other options cost between ${low} secondhand to ${high} new.
+                Other options range from ${low} resale to ${high} new.
               </p>
               <button
                 type="button"

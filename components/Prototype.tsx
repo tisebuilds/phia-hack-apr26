@@ -111,14 +111,17 @@ export function Prototype() {
     [pack.label, company.name, snap.tweaks.budget],
   );
 
-  const setStarterMode = useCallback(
+  const onStarterModeFromLab = useCallback(
     (mode: StarterMode) => {
       setSnap((prev) => ({
         ...prev,
         starterMode: mode,
         tweaks: { ...prev.tweaks, company: coerceCompanyIdForMode(mode, prev.tweaks.company) },
         quiz: {},
+        screen: "home",
+        homeMilestoneChosen: mode !== "platform",
       }));
+      setLabOpen(false);
     },
     [setSnap],
   );
@@ -367,7 +370,7 @@ export function Prototype() {
         onClose={() => setLabOpen(false)}
         contextLine={labContextLine}
         starterMode={snap.starterMode}
-        onStarterModeChange={setStarterMode}
+        onStarterModeChange={onStarterModeFromLab}
         showDevNav={showDevNav}
         screen={snap.screen}
         onGoScreen={goFromLab}

@@ -37,9 +37,9 @@ function normalizePersistedScreen(raw: unknown): ScreenId | null {
 
 export function createDefaultPersistedState(): PersistedStateV1 {
   return {
-    version: 1,
+    version: 2,
     starterMode: "work",
-    homeMilestoneChosen: false,
+    homeMilestoneChosen: true,
     screen: "home",
     season: "spring",
     quiz: {},
@@ -70,11 +70,19 @@ export function mergePersistedState(parsed: unknown, initial: PersistedStateV1):
 
   const screen = normalizePersistedScreen(p.screen) ?? initial.screen;
 
+  const persistedVersion: 1 | 2 = p.version === 2 ? 2 : 1;
+
   const homeMilestoneChosen =
-    typeof p.homeMilestoneChosen === "boolean" ? p.homeMilestoneChosen : true;
+    persistedVersion < 2
+      ? starterMode === "platform"
+        ? false
+        : true
+      : typeof p.homeMilestoneChosen === "boolean"
+        ? p.homeMilestoneChosen
+        : true;
 
   return {
-    version: 1,
+    version: 2,
     starterMode,
     homeMilestoneChosen,
     screen,

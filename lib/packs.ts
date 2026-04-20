@@ -345,8 +345,8 @@ const PACK_WORK: StarterPack = {
   homeHero: {
     badge: "2 mins",
     headline: "Stop guessing what to wear to work.",
-    body: "A starter wardrobe that fits your actual job — built around your workplace, budget, and style.",
-    cta: "Build my capsule",
+    body: "A starter wardrobe that fits your actual job, budget and style.",
+    cta: "See your outfits",
   },
   companies: STARTER_DATA.companies,
   contextOptions: WORK_CONTEXT_OPTIONS,
@@ -380,7 +380,7 @@ const PACK_CONCERT: StarterPack = {
     badge: "2 mins",
     headline: "Dress for the room, not the feed.",
     body: "Pick your venue lane, then shape the vibe—budget-capped looks with resale where it steals the show. Variation comes from style choices, not the calendar.",
-    cta: "Build my look",
+    cta: "See your outfits",
   },
   companies: CONCERT_COMPANIES,
   contextOptions: CONCERT_OPTIONS,
@@ -414,7 +414,7 @@ const PACK_CAMPUS: StarterPack = {
     badge: "2 mins",
     headline: "First semester, first outfit system.",
     body: "A campus starter built around your school rhythm, budget, and style — mixable from syllabus week on.",
-    cta: "Build my capsule",
+    cta: "See your outfits",
   },
   companies: CAMPUS_COMPANIES,
   contextOptions: CAMPUS_OPTIONS,
@@ -448,7 +448,7 @@ const PACK_HALLOWEEN: StarterPack = {
     badge: "2 mins",
     headline: "Costume energy, real-world practical.",
     body: "Office, friends, family, or night out—your lane sets the guardrails; the quiz and resale mix dial the look. Style drives the variation, not the clock.",
-    cta: "Build my look",
+    cta: "See your outfits",
   },
   companies: HALLOWEEN_COMPANIES,
   contextOptions: HALLOWEEN_OPTIONS,
@@ -482,7 +482,7 @@ const PACK_WORK_PARTY: StarterPack = {
     badge: "2 mins",
     headline: "The office party without the panic buy.",
     body: "Big firm, startup, client-facing, or hybrid—pick the vibe first. Budget and how dressy you want to read do the rest; no invite-time required.",
-    cta: "Build my outfit",
+    cta: "See your outfits",
   },
   companies: PARTY_COMPANIES,
   contextOptions: PARTY_OPTIONS,
@@ -509,12 +509,25 @@ const PACK_WORK_PARTY: StarterPack = {
     ] as const,
 };
 
+const PACK_PLATFORM: StarterPack = {
+  ...PACK_WORK,
+  id: "platform",
+  label: "Platform",
+  homeHero: {
+    badge: "2 mins",
+    headline: "Pick a lane, we'll shape the looks.",
+    body: "Start from any occasion on the home grid—budget, resale mix, and vibe customize what you see next.",
+    cta: "See your outfits",
+  },
+};
+
 const PACKS: Record<StarterMode, StarterPack> = {
   work: PACK_WORK,
   concert: PACK_CONCERT,
   campus: PACK_CAMPUS,
   halloween: PACK_HALLOWEEN,
   workParty: PACK_WORK_PARTY,
+  platform: PACK_PLATFORM,
 };
 
 export const STARTER_PACK_LIST: readonly { id: StarterMode; label: string }[] = [
@@ -523,6 +536,7 @@ export const STARTER_PACK_LIST: readonly { id: StarterMode; label: string }[] = 
   { id: "campus", label: PACK_CAMPUS.label },
   { id: "halloween", label: PACK_HALLOWEEN.label },
   { id: "workParty", label: PACK_WORK_PARTY.label },
+  { id: "platform", label: PACK_PLATFORM.label },
 ];
 
 export function getStarterPack(mode: StarterMode): StarterPack {

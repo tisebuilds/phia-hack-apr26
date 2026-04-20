@@ -219,7 +219,7 @@ export function QuizScreen({
           </PrimaryButton>
         ) : (
           <PrimaryButton accent={accent} disabled={!done} onClick={onNext}>
-            {done ? "Build my capsule →" : `${Object.keys(answers).length} of 3 answered`}
+            {done ? "See your outfits →" : `${Object.keys(answers).length} of 3 answered`}
           </PrimaryButton>
         )}
       </div>

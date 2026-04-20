@@ -19,9 +19,9 @@ Interactive pitch prototype for **Phia Starter** — nine screens, two capsule l
 
 App state is mirrored to `localStorage` under `phia-starter-state-v1` after the first client hydrate so refresh keeps your place.
 
-## Product imagery (optional)
+## Product imagery
 
-Drop PNGs at `public/products/{id}.png` (`1`–`12`). When a file is missing, tiles fall back to the striped placeholder treatment.
+Demo tiles load JPEGs from two folders (see `lib/itemPhotoPath.ts`): **bags and shoes/boots** use `public/products/labeled/{{category}}-{{slug}}.jpg` (original stock); **tops, bottoms, and outerwear** use `public/Phia clothing/{{category}}-phia-NN.jpg` (e.g. `top-phia-03.jpg`, `outerwear-phia-01.jpg`; space in `Phia clothing` is URL-encoded). Optional: regenerate legacy shots via `python3 scripts/sync-product-photos.py`. When a file is missing, tiles fall back to the tone placeholder in `ProductSlot`.
 
 ## Standalone HTML
 
